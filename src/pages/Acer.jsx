@@ -1,23 +1,35 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-// Images Import
-import lap1 from '../assets/imgs/brand1.png';
-import lap2 from '../assets/imgs/brand2.png'; 
-
 const Acer = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('default');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState({
-    RAM: [],
-    GPU: []
-  });
-  
-  const [openSections, setOpenSections] = useState({
-    RAM: true,
-    GPU: true
-  });
+  const [selectedFilters, setSelectedFilters] = useState({ RAM: [], GPU: [] });
+  const [openSections, setOpenSections] = useState({ RAM: true, GPU: true });
+
+  const itemsPerPage = 6;
+
+  // Fetch products from backend using fetch
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products?brand=Acer`);
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        console.error("Error fetching Acer products:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const toggleSection = (section) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -33,42 +45,20 @@ const Acer = () => {
     setCurrentPage(1);
   };
 
-  const itemsPerPage = 6;
-
-  // Acer Specific Products Data
-  const allProducts = useMemo(() => [
-    { id: 201, name: "Acer Nitro 5 Gaming", price: 165000, rating: 4, reviews: 95, img: lap2, ram: "8GB", gpu: "RTX 3060" },
-    { id: 202, name: "Acer Predator Helios Neo", price: 345000, rating: 5, reviews: 120, img: lap1, ram: "16GB", gpu: "RTX 4060" },
-    { id: 203, name: "Acer Swift Go 14", price: 195000, rating: 5, reviews: 89, img: lap2, ram: "16GB", gpu: "Integrated" },
-    { id: 204, name: "Acer Aspire 5 Slim", price: 125000, rating: 4, reviews: 310, img: lap1, ram: "8GB", gpu: "Integrated" },
-    { id: 205, name: "Acer Triton 500 SE", price: 480000, rating: 5, reviews: 520, img: lap2, ram: "32GB", gpu: "RTX 3070" },
-    { id: 206, name: "Acer Spin 5 Touch", price: 215000, rating: 4, reviews: 60, img: lap1, ram: "16GB", gpu: "Integrated" },
-    ...Array.from({ length: 6 }, (_, i) => ({
-        id: i + 207,
-        name: `Acer Extensa Professional ${i + 207}`,
-        price: 110000 + (i * 8000),
-        rating: 4,
-        reviews: 40 + i, 
-        img: i % 2 === 0 ? lap1 : lap2,
-        ram: "8GB", 
-        gpu: "Integrated"
-    }))
-  ], []);
-
-  const filteredAndSortedProducts = useMemo(() => {
-    let result = allProducts.filter(product => {
-      if (selectedFilters.RAM.length > 0 && !selectedFilters.RAM.includes(product.ram)) return false;
-      if (selectedFilters.GPU.length > 0 && !selectedFilters.GPU.includes(product.gpu)) return false;
+  // Filter and sort
+  const filteredAndSortedProducts = products
+    .filter(product => {
+      if (selectedFilters.RAM.length && !selectedFilters.RAM.includes(product.ram)) return false;
+      if (selectedFilters.GPU.length && !selectedFilters.GPU.includes(product.gpu)) return false;
       return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price-low') return a.price - b.price;
+      if (sortBy === 'price-high') return b.price - a.price;
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      if (sortBy === 'popularity') return (b.reviews || 0) - (a.reviews || 0);
+      return 0;
     });
-
-    if (sortBy === 'price-low') result.sort((a, b) => a.price - b.price);
-    if (sortBy === 'price-high') result.sort((a, b) => b.price - a.price);
-    if (sortBy === 'name') result.sort((a, b) => a.name.localeCompare(b.name));
-    if (sortBy === 'popularity') result.sort((a, b) => b.reviews - a.reviews);
-    
-    return result;
-  }, [allProducts, sortBy, selectedFilters]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -80,27 +70,17 @@ const Acer = () => {
     { title: "GPU", options: ["RTX 3060", "RTX 3070", "RTX 4060", "Integrated"] },
   ];
 
+  if (loading) return <div className="text-center py-20">Loading Acer products...</div>;
+
   return (
     <div className="bg-[#F8F9FA] min-h-screen font-sans pb-12">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
-        
-        {/* Breadcrumb Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl md:text-3xl font-bold text-black">Acer Laptops</h1>
-          <nav className="hidden sm:block text-xs md:text-sm text-gray-500">
-            <Link to="/" className="hover:text-[#b8962d] transition-colors cursor-pointer">Home</Link>
-            <span className="mx-1">/</span>
-            <span className="text-gray-800 font-medium">Acer</span>
-          </nav>
-        </div>
+        <h1 className="text-xl md:text-3xl font-bold text-black mb-6">Acer Laptops</h1>
 
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar Filters */}
+          {/* Filters Sidebar */}
           <aside className="w-full lg:w-[280px] bg-white rounded-2xl border border-[#E6E6E6] shadow-sm p-5 lg:p-6 h-fit shrink-0">
-            <div 
-              className="flex justify-between items-center cursor-pointer lg:cursor-default lg:mb-6"
-              onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-            >
+            <div onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)} className="flex justify-between items-center cursor-pointer lg:cursor-default lg:mb-6">
               <h2 className="text-lg lg:text-xl font-bold text-gray-800 uppercase tracking-tight">Filters</h2>
               <span className={`text-gray-500 lg:hidden transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`}>▼</span>
             </div>
@@ -119,9 +99,9 @@ const Acer = () => {
                           type="checkbox" 
                           checked={selectedFilters[cat.title]?.includes(opt)}
                           onChange={() => handleFilterChange(cat.title, opt)}
-                          className="w-4 h-4 rounded border-[#E6E6E6] accent-[#d6a11e] focus:ring-[#b8962d] cursor-pointer" 
+                          className="w-4 h-4 rounded border-[#E6E6E6] accent-[#d6a11e] focus:ring-[#b8962d]" 
                         />
-                        <span className={`text-sm transition-colors ${selectedFilters[cat.title]?.includes(opt) ? 'text-black font-bold' : 'text-gray-600 group-hover:text-black'}`}>
+                        <span className={`text-sm ${selectedFilters[cat.title]?.includes(opt) ? 'text-black font-bold' : 'text-gray-600 group-hover:text-black'}`}>
                           {opt}
                         </span>
                       </label>
@@ -132,17 +112,14 @@ const Acer = () => {
             </div>
           </aside>
 
-          {/* Main Content Area */}
+          {/* Products Grid */}
           <main className="flex-1">
-            {/* Toolbar */}
+            {/* Sorting */}
             <div className="bg-white rounded-2xl border border-[#E6E6E6] shadow-sm p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-gray-700 font-bold uppercase tracking-wide text-xs">
                 Showing {filteredAndSortedProducts.length > 0 ? indexOfFirstItem + 1 : 0}-{Math.min(indexOfLastItem, filteredAndSortedProducts.length)} of {filteredAndSortedProducts.length} results
               </p>
-              <select 
-                onChange={(e) => {setSortBy(e.target.value); setCurrentPage(1);}} 
-                className="w-full md:w-auto border border-[#E6E6E6] rounded-lg px-4 py-1.5 bg-white text-sm outline-none focus:border-[#b8962d] cursor-pointer transition-all"
-              >
+              <select onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }} className="w-full md:w-auto border border-[#E6E6E6] rounded-lg px-4 py-1.5 bg-white text-sm outline-none focus:border-[#b8962d] cursor-pointer transition-all">
                 <option value="default">Default Sorting</option>
                 <option value="popularity">Sort by Popularity</option>
                 <option value="name">Name (A-Z)</option>
@@ -152,36 +129,24 @@ const Acer = () => {
             </div>
 
             {filteredAndSortedProducts.length === 0 ? (
-               <div className="text-center py-20 bg-white rounded-2xl border border-[#E6E6E6] shadow-sm">
-                 <p className="text-gray-500 text-lg">No Acer laptops match your filters.</p>
-               </div>
+              <div className="text-center py-20 bg-white rounded-2xl border border-[#E6E6E6] shadow-sm">
+                <p className="text-gray-500 text-lg">No Acer laptops match your filters.</p>
+              </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {currentProducts.map((product) => (
-                  <div key={product.id} className="bg-white rounded-2xl border border-[#E6E6E6] shadow-sm p-5 hover:shadow-xl transition-all duration-300 flex flex-col group relative">
+                {currentProducts.map(product => (
+                  <div key={product._id || product.id} className="bg-white rounded-2xl border border-[#E6E6E6] shadow-sm p-5 hover:shadow-xl transition-all flex flex-col group relative">
                     <div className="h-40 sm:h-44 flex items-center justify-center mb-6 overflow-hidden">
-                      <img 
-                        src={product.img} 
-                        alt={product.name} 
-                        className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500" 
-                      />
+                      <img src={product.image} alt={product.name} className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500" />
                     </div>
-                    
                     <h3 className="text-lg font-black text-[#0F172A] mb-1 leading-tight h-14 overflow-hidden">{product.name}</h3>
-                    
                     <div className="flex items-center gap-1 mb-4 text-[#F4C430] text-2xl">
                       {"★".repeat(product.rating || 0)}{"☆".repeat(5-(product.rating || 0))}
-                      <span className="text-gray-400 text-xs ml-1 font-normal">({product.reviews})</span>
+                      <span className="text-gray-400 text-xs ml-1 font-normal">({product.reviews || 0})</span>
                     </div>
-
                     <div className="mt-auto flex items-center justify-between gap-2">
                       <span className="text-lg sm:text-xl font-black text-[#0F172A]">PKR {product.price.toLocaleString()}</span>
-                      <Link 
-                        to={`/product/${product.id}`}
-                        className="px-4 py-2.5 bg-gradient-to-r from-[#F4C430] to-[#d6a11e] text-slate-800 text-[10px] sm:text-[11px] font-bold rounded-xl border-b-[3px] border-[#b8962d] uppercase hover:brightness-110 transition-all active:scale-95 shadow-sm flex items-center justify-center"
-                      >
-                        View Details
-                      </Link>
+                      <Link to={`/product/${product._id || product.id}`} className="px-4 py-2.5 bg-gradient-to-r from-[#F4C430] to-[#d6a11e] text-slate-800 text-[10px] sm:text-[11px] font-bold rounded-xl border-b-[3px] border-[#b8962d] uppercase hover:brightness-110 transition-all active:scale-95 shadow-sm flex items-center justify-center">View Details</Link>
                     </div>
                   </div>
                 ))}
@@ -191,28 +156,9 @@ const Acer = () => {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-12 flex justify-center items-center gap-4">
-                <div className="flex gap-3">
-                  {[...Array(totalPages)].map((_, i) => (
-                    <button 
-                      key={i} 
-                      onClick={() => setCurrentPage(i + 1)} 
-                      className={`w-10 h-10 rounded-lg font-bold transition-all shadow-sm ${
-                        currentPage === i + 1 
-                        ? 'bg-gradient-to-b from-[#F4C430] to-[#d6a11e] text-slate-800 shadow-lg scale-110' 
-                        : 'bg-white border border-[#E6E6E6] text-gray-500 hover:border-[#b8962d]'
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-                <button 
-                  onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} 
-                  disabled={currentPage === totalPages} 
-                  className="px-6 py-2.5 rounded-lg font-bold bg-gradient-to-b from-[#F4C430] to-[#d6a11e] text-slate-800 shadow-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  Next <span className="text-lg">→</span>
-                </button>
+                {[...Array(totalPages)].map((_, i) => (
+                  <button key={i} onClick={() => setCurrentPage(i+1)} className={`w-10 h-10 rounded-lg font-bold transition-all shadow-sm ${currentPage === i+1 ? 'bg-gradient-to-b from-[#F4C430] to-[#d6a11e] text-slate-800 shadow-lg scale-110' : 'bg-white border border-[#E6E6E6] text-gray-500 hover:border-[#b8962d]'}`}>{i+1}</button>
+                ))}
               </div>
             )}
           </main>

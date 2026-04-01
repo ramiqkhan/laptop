@@ -1,19 +1,91 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-
-// Images
-import lap1 from '../assets/imgs/brand1.png';
-import lap2 from '../assets/imgs/brand2.png';
+import { useNavigate } from 'react-router-dom';
+import { 
+  X, Cpu, Layers, HardDrive, Monitor, CheckCircle, Copy, 
+  ArrowRight, ArrowLeft, Star, ShieldCheck, Zap, Box, ShoppingCart, CreditCard 
+} from 'lucide-react';
 
 const Deals = () => {
+  const navigate = useNavigate();
+  const [dealProducts, setDealProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [copiedCode, setCopiedCode] = useState("");
+  const [selectedDeal, setSelectedDeal] = useState(null); 
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 12, mins: 45, secs: 30 });
 
+  const API_URL = "http://localhost:5000/api/deals";
+
+  const fetchDeals = async () => {
+    try {
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      setDealProducts(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Fetch Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderImage = (imageSource) => {
+    const imgObj = Array.isArray(imageSource) ? imageSource[activeImgIndex] || imageSource[0] : imageSource;
+    if (!imgObj || !imgObj.data) return "https://via.placeholder.com/600x400?text=No+Image";
+    try {
+      const bufferData = imgObj.data.data || imgObj.data;
+      const binary = new Uint8Array(bufferData).reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+      return `data:${imgObj.contentType || 'image/jpeg'};base64,${btoa(binary)}`;
+    } catch (err) { return "https://via.placeholder.com/600x400?text=Error"; }
+  };
+
+  // --- FIXED ADD TO CART LOGIC ---
+  const handleAddToCart = (product, silent = false) => {
+    const savedCart = localStorage.getItem('globalCart');
+    let currentCart = savedCart ? JSON.parse(savedCart) : [];
+
+    const existingItem = currentCart.find(item => item.id === product._id);
+    
+    if (existingItem) {
+      currentCart = currentCart.map(item =>
+        item.id === product._id ? { ...item, quantity: item.quantity + 1 } : item
+      );
+    } else {
+      currentCart.push({
+        id: product._id,
+        name: product.name,
+        price: product.price,
+        img: renderImage(product.images),
+        quantity: 1,
+        brand: product.brand,
+        processor: product.processor,
+        ram: product.ram,
+        storage: product.storage
+      });
+    }
+
+    localStorage.setItem('globalCart', JSON.stringify(currentCart));
+    
+    // Dispatching event for Navbar & Cart
+    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { id: product._id } }));
+    
+    if (!silent) {
+      alert("Added to cart!");
+    }
+  };
+
+  const handleBuyNow = (product) => {
+    handleAddToCart(product, true);
+    navigate('/cart');
+  };
+
   useEffect(() => {
+    fetchDeals();
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev.secs > 0) return { ...prev, secs: prev.secs - 1 };
-        return { ...prev, mins: prev.mins - 1, secs: 59 };
+        if (prev.mins > 0) return { ...prev, mins: prev.mins - 1, secs: 59 };
+        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, mins: 59, secs: 59 };
+        return prev;
       });
     }, 1000);
     return () => clearInterval(timer);
@@ -25,130 +97,176 @@ const Deals = () => {
     setTimeout(() => setCopiedCode(""), 2000);
   };
 
-  const dealProducts = [
-    { id: 101, name: "HP Victus 15 - RTX 3050", originalPrice: 210000, dealPrice: 185000, discount: "12% OFF", img: lap1, code: "HP-SAVE-15" },
-    { id: 403, name: "Alienware m16 R2 Beast", originalPrice: 650000, dealPrice: 585000, discount: "PKR 65k OFF", img: lap2, code: "ALIEN-DEAL" },
-    { id: 301, name: "MacBook Air M2 (Silver)", originalPrice: 345000, dealPrice: 315000, discount: "SAVE 30K", img: lap1, code: "APPLE-M2" },
-  ];
-
   return (
-    <div className="bg-[#F8F9FA] min-h-screen font-sans pb-10 md:pb-20">
-      
-      {/* --- HERO SECTION --- */}
-      <div className="bg-[#0F172A] text-white py-12 md:py-20 px-4 relative overflow-hidden">
-        <div className="max-w-[1400px] mx-auto text-center relative z-10">
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-4 tracking-tighter italic">
-            FLASH <span className="text-[#F4C430]">DEALS</span>
-          </h1>
-          <p className="text-gray-400 text-sm md:text-lg mb-8 max-w-2xl mx-auto font-medium px-4">
-            Exclusive discounts on high-performance machines. Limited time only.
-          </p>
-          
-          {/* Timer - Responsive gap and sizing */}
-          <div className="flex justify-center gap-2 md:gap-4">
-            {[ 
-              { label: 'Hours', val: timeLeft.hours }, 
-              { label: 'Min', val: timeLeft.mins }, 
-              { label: 'Sec', val: timeLeft.secs } 
-            ].map((unit, i) => (
-              <div key={i} className="bg-white/5 backdrop-blur-md border border-white/10 p-2 md:p-4 rounded-xl md:rounded-2xl min-w-[70px] md:min-w-[100px] shadow-2xl">
-                <div className="text-xl md:text-4xl font-black text-[#F4C430]">{unit.val < 10 ? `0${unit.val}` : unit.val}</div>
-                <div className="text-[8px] md:text-[10px] uppercase tracking-[1px] md:tracking-[2px] text-gray-400 font-bold">{unit.label}</div>
+    <div className="w-full font-['Poppins'] bg-white min-h-screen">
+      {selectedDeal ? (
+        <div className="max-w-7xl mx-auto px-6 py-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <button 
+            onClick={() => { setSelectedDeal(null); setActiveImgIndex(0); window.scrollTo(0,0); }} 
+            className="flex items-center gap-2 font-black uppercase text-[10px] tracking-[0.2em] mb-12 text-slate-400 hover:text-blue-600 transition-all group"
+          >
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Deals
+          </button>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <div className="flex flex-col gap-8">
+              <div className="bg-slate-50 rounded-[3rem] p-12 border border-slate-100 flex items-center justify-center shadow-inner relative overflow-hidden h-[500px]">
+                <div className="absolute top-8 left-8 z-10">
+                  <span className="px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#F4C430] text-[#0F172A]">
+                    Flash Deal Active
+                  </span>
+                </div>
+                <img 
+                  src={renderImage(selectedDeal.images)} 
+                  className="max-h-full w-auto object-contain drop-shadow-2xl transition-all duration-700" 
+                  alt={selectedDeal.name} 
+                />
               </div>
-            ))}
+
+              <div className="flex flex-wrap gap-4 justify-start px-2">
+                {selectedDeal.images && selectedDeal.images.map((img, idx) => (
+                  <button 
+                    key={idx}
+                    onClick={() => setActiveImgIndex(idx)}
+                    className={`w-28 h-24 rounded-2xl border-2 transition-all overflow-hidden bg-white p-2 shadow-sm 
+                      ${activeImgIndex === idx ? 'border-blue-600 ring-4 ring-blue-50' : 'border-slate-100 hover:border-slate-300'}`}
+                  >
+                    <img src={renderImage(selectedDeal.images[idx])} className="w-full h-full object-contain" alt="" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-blue-600 font-black text-[10px] uppercase tracking-[0.4em]">{selectedDeal.brand} Exclusive</span>
+                <div className="flex items-center gap-1 text-[#F4C430]">
+                  <Star size={14} fill="currentColor" />
+                  <span className="text-sm font-black text-slate-900">4.9</span>
+                </div>
+              </div>
+
+              <h1 className="text-5xl font-black text-slate-900 leading-[0.9] mb-6 uppercase italic tracking-tighter">
+                {selectedDeal.name}
+              </h1>
+              
+              <div className="flex items-baseline gap-4 mb-10">
+                <p className="text-4xl font-black text-slate-900 flex items-start gap-1">
+                  <span className="text-sm mt-2 text-blue-600 font-bold">PKR</span>
+                  {selectedDeal.price?.toLocaleString()}
+                </p>
+                <span className="text-xl text-slate-400 line-through font-bold font-mono">PKR {selectedDeal.originalPrice?.toLocaleString()}</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-y-8 gap-x-12 mb-12 bg-slate-50/50 p-10 rounded-[2.5rem] border border-slate-50">
+                <DetailSpec icon={<Cpu size={14} />} label="Processor" value={selectedDeal.processor} />
+                <DetailSpec icon={<Box size={14} />} label="Memory" value={selectedDeal.ram} />
+                <DetailSpec icon={<HardDrive size={14} />} label="Storage" value={selectedDeal.storage} />
+                <DetailSpec icon={<Zap size={14} />} label="Graphics" value={selectedDeal.graphics || "Dedicated GPU"} />
+                <DetailSpec icon={<Monitor size={14} />} label="Display" value={selectedDeal.display || "15.6\" FHD"} />
+                <DetailSpec icon={<ShieldCheck size={14} />} label="Warranty" value="1 Year Brand" />
+              </div>
+
+              <div 
+                onClick={() => copyToClipboard(`${selectedDeal.brand.toUpperCase()}-DEAL`)}
+                className="mb-8 w-full h-16 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-between px-6 cursor-pointer hover:border-[#F4C430] group transition-all"
+              >
+                <span className="text-sm font-black tracking-[3px] text-slate-900 font-mono">
+                  {copiedCode ? "COPIED! ✓" : `${selectedDeal.brand.toUpperCase()}-DEAL`}
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 group-hover:text-[#F4C430]">CLICK TO COPY</span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button 
+                  onClick={() => handleAddToCart(selectedDeal)}
+                  className="flex-1 bg-slate-900 text-white py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-xl active:scale-95 group"
+                >
+                  <ShoppingCart size={18} /> Add To Cart
+                </button>
+                <button 
+                  onClick={() => handleBuyNow(selectedDeal)}
+                  className="flex-1 bg-blue-600 text-white py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-slate-900 transition-all shadow-xl active:scale-95"
+                >
+                  <CreditCard size={18} /> Buy Now
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-[#F4C430]/10 rounded-full blur-[80px] md:blur-[120px] -mr-32 -mt-32"></div>
-      </div>
-
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 -mt-8 md:-mt-12">
-        
-        {/* --- PROFESSIONAL CARDS GRID --- */}
-        {/* Adjusted grid for Mobile (1), Tablet (2), Laptop (3) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-16 md:mb-20">
-          {dealProducts.map((deal) => (
-            <div key={deal.id} className="group relative bg-white rounded-[24px] md:rounded-[32px] p-1.5 md:p-2 shadow-[0_15px_40px_rgba(0,0,0,0.05)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] transition-all duration-500 border border-transparent hover:border-[#b8962d]/20">
+      ) : (
+        <>
+          <div className="bg-[#0F172A] text-white py-12 md:py-20 px-4 relative overflow-hidden">
+            <div className="max-w-[1400px] mx-auto text-center relative z-10">
+              <span className="text-blue-500 font-black text-[10px] uppercase tracking-[0.4em] mb-4 block">Limited Time Offers</span>
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-4 tracking-tighter italic uppercase">
+                FLASH <span className="text-[#F4C430]">DEALS</span>
+              </h1>
               
-              <div className="bg-white rounded-[20px] md:rounded-[28px] p-5 md:p-6 h-full flex flex-col">
-                
-                <div className="flex justify-between items-start mb-2">
-                  <div className="bg-[#F4C430] text-[#0F172A] text-[9px] md:text-[11px] font-black px-3 py-1 md:px-4 md:py-1.5 rounded-full shadow-lg shadow-[#F4C430]/20 uppercase">
-                    {deal.discount}
+              <div className="flex justify-center gap-2 md:gap-4 mt-8">
+                {[{ label: 'Hours', val: timeLeft.hours }, { label: 'Min', val: timeLeft.mins }, { label: 'Sec', val: timeLeft.secs }].map((unit, i) => (
+                  <div key={i} className="bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl min-w-[100px]">
+                    <div className="text-2xl md:text-4xl font-black text-[#F4C430]">{unit.val < 10 ? `0${unit.val}` : unit.val}</div>
+                    <div className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">{unit.label}</div>
                   </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-gray-400 line-through text-[10px] md:text-xs font-bold font-['Poppins']">PKR {deal.originalPrice.toLocaleString()}</span>
-                    <span className="text-lg md:text-2xl font-black text-[#0F172A] font-['Poppins']">PKR {deal.dealPrice.toLocaleString()}</span>
-                  </div>
-                </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
-                <div className="relative h-40 md:h-56 w-full flex items-center justify-center my-4 overflow-hidden rounded-xl bg-[#F8F9FA]">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-[#F4C430]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <img 
-                      src={deal.img} 
-                      alt={deal.name} 
-                      className="max-h-[85%] w-auto object-contain transform group-hover:scale-110 md:group-hover:-rotate-3 transition-all duration-700" 
-                    />
-                </div>
-
-                <h3 className="text-md md:text-lg font-bold text-[#0F172A] mb-4 leading-tight group-hover:text-[#b8962d] transition-colors min-h-[3rem]">
-                  {deal.name}
-                </h3>
-
-                <div className="mt-auto space-y-3 md:space-y-4">
-                    <div 
-                      onClick={() => copyToClipboard(deal.code)}
-                      className="relative h-12 md:h-14 bg-[#F8F9FA] rounded-xl md:rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center cursor-pointer overflow-hidden group/coupon"
-                    >
-                      <div className={`absolute inset-0 bg-[#0F172A] flex items-center justify-center transition-all duration-500 ${copiedCode === deal.code ? '-translate-y-full' : 'translate-y-0'}`}>
-                        <div className="flex items-center gap-2">
-                           <span className="text-[#F4C430] text-[9px] md:text-[10px] font-black uppercase tracking-[2px] md:tracking-[3px]">Reveal Coupon</span>
+          <div className="max-w-[1400px] mx-auto px-4 py-20">
+            {loading ? (
+              <div className="text-center font-black text-slate-300 animate-pulse uppercase tracking-widest">Loading...</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {dealProducts.map((deal) => (
+                  <div 
+                    key={deal._id} 
+                    onClick={() => { setSelectedDeal(deal); window.scrollTo(0,0); }}
+                    className="group bg-white rounded-[32px] p-2 shadow-sm border border-slate-100 hover:shadow-2xl hover:border-blue-100 transition-all duration-500 cursor-pointer"
+                  >
+                    <div className="bg-slate-50 rounded-[28px] p-6 h-full flex flex-col">
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="bg-[#F4C430] text-[#0F172A] text-[9px] font-black px-4 py-1.5 rounded-full uppercase">Deal</span>
+                        <div className="text-right">
+                          <p className="text-gray-400 line-through text-[10px] font-bold italic">PKR {deal.originalPrice?.toLocaleString()}</p>
+                          <p className="text-xl font-black text-slate-900 italic">PKR {deal.price?.toLocaleString()}</p>
                         </div>
                       </div>
-                      <span className="text-xs md:text-sm font-mono font-black text-[#0F172A] tracking-[3px] md:tracking-[5px]">
-                        {copiedCode === deal.code ? "✓ COPIED" : deal.code}
-                      </span>
+                      
+                      <div className="h-48 flex items-center justify-center mb-6">
+                        <img src={renderImage(deal.images[0])} className="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500" />
+                      </div>
+
+                      <h3 className="text-lg font-black text-slate-900 mb-4 uppercase tracking-tight">{deal.name}</h3>
+                      
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        <span className="bg-white px-3 py-1 rounded-lg text-[10px] font-bold text-slate-500 border border-slate-100">{deal.processor}</span>
+                        <span className="bg-white px-3 py-1 rounded-lg text-[10px] font-bold text-slate-500 border border-slate-100">{deal.ram}</span>
+                      </div>
+
+                      <button className="w-full py-4 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest group-hover:bg-blue-600 transition-all flex items-center justify-center gap-2">
+                        View Details <ArrowRight size={14} />
+                      </button>
                     </div>
-
-                    <Link 
-                      to={`/product/${deal.id}`}
-                      className="w-full flex items-center justify-center py-3 md:py-4 bg-gradient-to-r from-[#0F172A] to-[#1e293b] text-white rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest hover:shadow-xl hover:shadow-[#0F172A]/20 transition-all active:scale-95"
-                    >
-                      Grab This Deal
-                    </Link>
-                </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* --- NEWSLETTER SECTION --- */}
-        <div className="bg-gradient-to-r from-[#F4C430] to-[#d6a11e] rounded-[30px] md:rounded-[48px] p-6 md:p-16 text-center shadow-[0_30px_100px_rgba(244,196,48,0.3)] relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-24 h-24 bg-white/10 rounded-full -translate-x-12 -translate-y-12"></div>
-          
-          <div className="relative z-10">
-            <h2 className="text-2xl md:text-5xl font-black text-[#0F172A] mb-3 md:mb-4 uppercase tracking-tighter leading-tight">
-              Want an extra 5% off?
-            </h2>
-            <p className="text-[#0F172A]/70 font-bold mb-6 md:mb-10 uppercase tracking-[2px] md:tracking-[4px] text-[10px] md:text-xs">
-              Exclusive weekend deals delivered to your inbox
-            </p>
-            
-            <div className="flex flex-col md:flex-row max-w-xl mx-auto gap-3">
-              <input 
-                type="email" 
-                placeholder="Enter your email" 
-                className="w-full md:flex-[2] px-6 md:px-8 py-4 md:py-5 rounded-xl md:rounded-[20px] outline-none bg-white border-2 border-[#0F172A]/5 text-[#0F172A] font-bold shadow-xl placeholder:text-[#0F172A]/40 focus:border-[#0F172A] transition-all" 
-              />
-              <button className="w-full md:flex-1 bg-[#0F172A] text-white px-6 md:px-10 py-4 md:py-5 rounded-xl md:rounded-[20px] font-black hover:bg-slate-800 active:scale-95 transition-all shadow-2xl uppercase text-[10px] md:text-xs tracking-widest">
-                Join Now
-              </button>
-            </div>
+            )}
           </div>
-        </div>
-
-      </div>
+        </>
+      )}
     </div>
   );
 };
+
+const DetailSpec = ({ icon, label, value }) => (
+  <div className="flex flex-col">
+    <div className="flex items-center gap-2 text-slate-400 mb-1">
+      {icon} <p className="text-[9px] font-black uppercase tracking-widest">{label}</p>
+    </div>
+    <p className="text-sm font-black text-slate-800 uppercase italic">{value}</p>
+  </div>
+);
 
 export default Deals;

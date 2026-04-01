@@ -36,10 +36,14 @@ const Drawer = ({ isOpen, onClose, title, children }) => (
 );
 
 function Navbar() {
-    // UPDATED: Ab state initialization waqt hi localStorage se data uthayega
+    // UPDATED: Added try-catch for safe parsing to prevent crash
     const [cartItems, setCartItems] = useState(() => {
-        const saved = localStorage.getItem('globalCart');
-        return saved ? JSON.parse(saved) : [];
+        try {
+            const saved = localStorage.getItem('globalCart');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
+        }
     });
     
     const [wishlistCount, setWishlistCount] = useState(0);
@@ -51,23 +55,14 @@ function Navbar() {
 
     useEffect(() => {
         const handleCartUpdate = (e) => {
-            const product = e.detail;
-            
-            // Logic: State aur LocalStorage dono ko sync rakhna hai
-            setCartItems(prev => {
-                const existing = prev.find(item => item.id === product.id);
-                let newCart;
-                if (existing) {
-                    newCart = prev.map(item => 
-                        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-                    );
-                } else {
-                    newCart = [...prev, { ...product, quantity: 1 }];
-                }
-                // Save to localStorage so Cart page can see it
-                localStorage.setItem('globalCart', JSON.stringify(newCart));
-                return newCart;
-            });
+            // UPDATED: Force refresh data from localStorage to ensure sync
+            try {
+                const saved = localStorage.getItem('globalCart');
+                const freshCart = saved ? JSON.parse(saved) : [];
+                setCartItems(freshCart);
+            } catch (err) {
+                console.error("Cart sync error", err);
+            }
             
             if (window.location.pathname !== '/cart') {
                 setDrawer({ isOpen: true, type: 'Your Cart' });
@@ -75,7 +70,7 @@ function Navbar() {
         };
 
         const handleWishlistUpdate = (e) => {
-            const { increment } = e.detail;
+            const { increment } = e.detail || {};
             setWishlistCount(prev => increment ? prev + 1 : Math.max(0, prev - 1));
         };
 
@@ -159,7 +154,7 @@ function Navbar() {
                             
                             <button onClick={() => openDrawer('Your Cart')} className="relative cursor-pointer group">
                                 <ShoppingCart className={`w-5 h-5 md:w-[22px] md:h-[22px] ${TEXT_DARK} group-hover:text-[#D4AF37]`} strokeWidth={1.8} />
-                                <span className={`absolute -top-1 -right-1.5 min-w-[14px] h-[14px] px-1 rounded-full flex items-center justify-center text-[8px] font-bold text-white ${PRIMARY_COLOR} ring-2 ring-white`}>{cartItems.length}</span>
+                                <span className={`absolute -top-1 -right-1.5 min-w-[14px] h-[14px] px-1 rounded-full flex items-center justify-center text-[8px] font-bold text-white ${PRIMARY_COLOR} ring-2 ring-white`}>{cartItems?.length || 0}</span>
                             </button>
                         </div>
                     </div>
@@ -196,7 +191,7 @@ function Navbar() {
             </div>
 
             <Drawer isOpen={drawer.isOpen} onClose={closeDrawer} title={drawer.type}>
-                 {cartItems.length === 0 ? (
+                 {(!cartItems || cartItems.length === 0) ? (
                     <EmptyState 
                         title="Your cart is empty" 
                         message="Looks like you haven't added anything to your cart yet." 
@@ -206,10 +201,10 @@ function Navbar() {
                     <div className="space-y-4">
                         {cartItems.map((item, index) => (
                             <div key={index} className="flex gap-4 p-3 border rounded-xl items-center">
-                                <img src={item.img} alt="" className="w-16 h-16 object-contain" />
+                                <img src={item?.img} alt="" className="w-16 h-16 object-contain" />
                                 <div>
-                                    <h4 className="font-bold text-sm text-slate-800">{item.name}</h4>
-                                    <p className="text-[#D4AF37] font-bold text-sm">PKR {item.price.toLocaleString()}</p>
+                                    <h4 className="font-bold text-sm text-slate-800">{item?.name || 'Product'}</h4>
+                                    <p className="text-[#D4AF37] font-bold text-sm">PKR {item?.price?.toLocaleString() || '0'}</p>
                                 </div>
                             </div>
                         ))}

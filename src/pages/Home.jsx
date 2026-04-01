@@ -1,189 +1,231 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { 
+  ChevronLeft, ChevronRight, ArrowLeft, Box, Cpu, HardDrive, Layout, 
+  ShoppingCart, CreditCard, ShieldCheck, Truck, Monitor, Zap, Star 
+} from 'lucide-react';
+
 import heroLaptop from '../assets/imgs/hero-1bg.png';
-import brand1 from '../assets/logo/hp.png';
-import brand2 from '../assets/logo/dellbg.png';
-import brand3 from '../assets/logo/apple.png';
-import brand4 from '../assets/logo/lenovo.jpg';
-import brand5 from '../assets/logo/acerbg.png';
-import brand6 from '../assets/logo/sonybg.png';
-import brand7 from '../assets/logo/samsung.png';
+import FeaturedProducts from '../components/Featurecomp';
 
-import a1 from '../assets/logo/ss1.jpg';
-import a2 from '../assets/logo/ac1.jpg';
-import a3 from '../assets/logo/dd1.jpg';
-import a4 from '../assets/logo/ll1.jpg';
+const Home = () => {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+  const navigate = useNavigate();
 
-const Hero = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [showAllBrands, setShowAllBrands] = useState(false);
+  useEffect(() => {
+    setActiveImgIndex(0);
+  }, [selectedProduct]);
 
-  const brands = [
-    { name: "", img: brand1, path: "/hp" },
-    { name: "", img: brand2, path: "/dell" },
-    { name: "", img: brand3, path: "/apple" },
-    { name: "", img: brand4, path: "/lenovo" },
-    { name: "", img: brand5, path: "/acer" },
-    { name: "", img: brand6, path: "/sony" },
-    { name: "", img: brand7, path: "/samsung" },
-  ];
+  // --- FIXED & STABILIZED IMAGE RENDERER ---
+  const renderImage = (image) => {
+    if (!image) return "https://via.placeholder.com/600x400?text=No+Image";
+    
+    // Check if it's already a URL
+    if (typeof image === 'string') return image;
 
-  const products = [
-    { id: 1, name: "Samsung Galaxy Book Pro 360", price: "PKR 415,000", rating: 4, reviews: 324, img: a1 },
-    { id: 2, name: "Acer Swift X14", price: "PKR 415,000", rating: 4, reviews: 324, img: a2 },
-    { id: 3, name: "Alienware m18 R2", price: "PKR 415,000", rating: 4, reviews: 324, img: a3 },
-    { id: 4, name: "Lenovo Legion Pro 7i", price: "PKR 415,000", rating: 4, reviews: 324, img: a4 },
-  ];
+    try {
+      // Handle both structures: image.data.data OR image.data
+      const rawData = image.data?.data || image.data;
+      
+      if (!rawData) return "https://via.placeholder.com/600x400?text=No+Data";
 
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % brands.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + brands.length) % brands.length);
-  };
-
-  const getVisibleBrands = () => {
-    let items = [];
-    for (let i = 0; i < 4; i++) {
-      items.push(brands[(currentIndex + i) % brands.length]);
+      const binary = new Uint8Array(rawData);
+      let binaryString = "";
+      for (let i = 0; i < binary.length; i++) {
+        binaryString += String.fromCharCode(binary[i]);
+      }
+      return `data:${image.contentType || 'image/jpeg'};base64,${btoa(binaryString)}`;
+    } catch (err) { 
+      console.error("Image rendering failed:", err);
+      return "https://via.placeholder.com/600x400?text=Error"; 
     }
-    return items;
+  };
+
+  // --- ADD TO CART LOGIC ---
+ const handleAddToCart = (product, silent = false) => {
+    if (!product) return;
+    try {
+      const savedCart = localStorage.getItem('globalCart');
+      let currentCart = savedCart ? JSON.parse(savedCart) : [];
+      
+      const productId = product._id || product.id;
+      
+      // Image nikalne ka safe tareeka
+      const productImage = product.images && product.images.length > 0 
+        ? renderImage(product.images[0]) 
+        : renderImage(product.image);
+
+      const existingItem = currentCart.find(item => item.id === productId);
+
+      if (existingItem) {
+        currentCart = currentCart.map(item =>
+          item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        currentCart.push({
+          id: productId,
+          name: product.name,
+          // Price ko numeric banayein taake NaN na aaye
+          price: Number(product.price) || 0, 
+          img: productImage, // Base64 string yahan save hogi
+          quantity: 1,
+          brand: product.brand || "Premium",
+          processor: product.processor,
+          ram: product.ram,
+          storage: product.storage
+        });
+      }
+
+      localStorage.setItem('globalCart', JSON.stringify(currentCart));
+      
+      // Dispatch event for Navbar sync
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { id: productId } }));
+      
+      if (!silent) alert("Added to cart!");
+    } catch (e) {
+      console.error("Cart saving error:", e);
+    }
+  };
+
+  const handleBuyNow = (product) => {
+    handleAddToCart(product, true);
+    navigate('/cart');
   };
 
   return (
-    <section className="relative w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 py-4 mt-2 md:mt-6 overflow-hidden">
-      <style>
-        {`
-          @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-          }
-          .animate-float {
-            animation: float 4s ease-in-out infinite;
-          }
-        `}
-      </style>
-
-      {/* Main Banner */}
-      <div className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] bg-gradient-to-r from-[#A9D1F7] to-white border border-white/60 shadow-sm min-h-[350px] md:min-h-[450px] flex items-center">
-        <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 items-center px-4 md:px-16 relative z-10">
-          
-          <div className="text-center lg:text-left py-8 md:py-10">
-            <h1 className="font-bold text-slate tracking-tight">
-              {/* Main Heading - Adjusted for Mobile/Tablet/Laptop */}
-              <span className="block text-[32px] sm:text-[45px] md:text-[50px] lg:text-[60px] leading-[1.1]">
-                Next-Gen Gaming Laptops
-              </span>
-              {/* Subheading - Adjusted for Mobile/Tablet/Laptop */}
-              <span className="block text-[20px] sm:text-[28px] md:text-[34px] lg:text-[45px] mt-2 md:mt-3 text-slate font-semibold leading-tight">
-                Power Meets Performance
-              </span>
-            </h1>
-            <Link to="/laptops" className="inline-block mt-6 md:mt-8 px-8 md:px-16 py-3 md:py-5 bg-gradient-to-r from-[#F4C430] to-[#d6a11e] text-slate-800 text-[14px] md:text-[18px] font-bold rounded-xl md:rounded-2xl shadow-xl hover:scale-105 transition-all tracking-widest active:scale-95 border-b-[4px] md:border-b-[5px] border-[#b8962d]">
-              Shop Now
-            </Link>
-          </div>
-
-          <div className="relative flex justify-center lg:justify-end pb-8 lg:pb-0">
-            <img
-              src={heroLaptop}
-              alt="Laptop"
-              className="w-full max-w-[280px] sm:max-w-[400px] md:max-w-[550px] lg:max-w-[600px] object-contain drop-shadow-2xl animate-float"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Brand Buttons Section */}
-      <div className="relative mt-8 md:mt-10">
-        <div className="hidden md:flex items-center gap-4">
-          <button onClick={prevSlide} className="p-2 rounded-full bg-white shadow-md border border-slate-100 hover:bg-[#F4C430] transition-all">
-            <ChevronLeft size={24} />
-          </button>
-
-          <div className="grid grid-cols-4 gap-4 flex-1">
-            {getVisibleBrands().map((item, index) => (
-              <Link to={item.path} key={index} className="bg-white rounded-2xl shadow-md border border-[#E6E6E6] p-4 flex flex-col items-center justify-center group hover:shadow-xl transition-all h-32 lg:h-44">
-                <div className="h-16 md:h-24 flex items-center justify-center mb-2">
-                  <img src={item.img} alt="brand" className="max-h-full object-contain group-hover:scale-110 transition-transform" />
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          <button onClick={nextSlide} className="p-2 rounded-full bg-white shadow-md border border-slate-100 hover:bg-[#F4C430] transition-all">
-            <ChevronRight size={24} />
-          </button>
-        </div>
-
-        <div className="md:hidden space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            {(showAllBrands ? brands : brands.slice(0, 4)).map((item, index) => (
-              <Link to={item.path} key={index} className="bg-white rounded-xl shadow-sm border border-[#E6E6E6] p-3 flex items-center justify-center h-24">
-                <img src={item.img} alt="brand" className="max-h-12 object-contain" />
-              </Link>
-            ))}
-          </div>
-          <div className="flex justify-center">
-            <button
-              onClick={() => setShowAllBrands(!showAllBrands)}
-              className="w-10 h-10 rounded-full bg-white border border-[#E6E6E6] flex items-center justify-center text-[#D4AF37]"
-            >
-              {showAllBrands ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <hr className="w-1/2 mx-auto mt-12 md:mt-16 mb-10 border-0 h-[2px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-60" />
+    <div className="w-full font-['Poppins'] bg-white min-h-screen">
       
-      {/* Featured Products Section */}
-      <div className="mt-8 text-center">
-        <h2 className="text-[24px] md:text-[40px] font-bold text-slate mb-8 md:mb-10">
-          Featured Products
-        </h2>
+      {selectedProduct ? (
+        <div className="max-w-7xl mx-auto px-6 py-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <button 
+            onClick={() => { setSelectedProduct(null); window.scrollTo(0,0); }} 
+            className="flex items-center gap-2 font-black uppercase text-[10px] tracking-[0.2em] mb-12 text-slate-400 hover:text-blue-600 transition-all group"
+          >
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back to Store
+          </button>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {products.map((product) => (
-            <div key={product.id} className="bg-white p-4 md:p-5 rounded-2xl md:rounded-3xl shadow-sm border border-[#E6E6E6] hover:shadow-md transition-all text-left flex flex-col">
-              <div className="h-40 md:h-48 flex items-center justify-center mb-4 rounded-xl overflow-hidden">
-                <img src={product.img} alt={product.name} className="max-h-full object-contain" />
-              </div>
-              <h3 className="text-md md:text-lg font-bold text-slate-800 truncate">{product.name}</h3>
-
-              <div className="flex items-center mt-1 mb-3">
-                <div className="flex text-orange-400 text-xs">
-                  {"★".repeat(product.rating)}{"☆".repeat(5 - product.rating)}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            
+            <div className="flex flex-col gap-8">
+              <div className="bg-slate-50 rounded-[3rem] p-12 border border-slate-100 flex items-center justify-center shadow-inner relative overflow-hidden h-[500px]">
+                <div className="absolute top-8 left-8 z-10">
+                  <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${selectedProduct.stock > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                    {selectedProduct.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                  </span>
                 </div>
-                <span className="text-slate-400 text-[10px] ml-2">({product.reviews})</span>
+                
+                <img 
+                  src={renderImage(selectedProduct.images ? selectedProduct.images[activeImgIndex] : selectedProduct.image)} 
+                  className="max-h-full w-auto object-contain drop-shadow-2xl transition-all duration-700" 
+                  alt={selectedProduct.name} 
+                />
               </div>
 
-              <div className="mt-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <span className="text-md md:text-lg font-bold text-slate-900">{product.price}</span>
-                <button className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#F4C430] to-[#d6a11e] text-slate-800 text-[11px] font-bold rounded-lg border-b-[3px] border-[#b8962d] uppercase">
-                  Details
+              <div className="flex flex-wrap gap-4 justify-start px-2">
+                {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                  selectedProduct.images.map((img, idx) => (
+                    <div key={idx} className="relative group">
+                      <button 
+                        onClick={() => setActiveImgIndex(idx)}
+                        className={`w-28 h-24 rounded-2xl border-2 transition-all overflow-hidden bg-white p-2 shadow-sm 
+                          ${activeImgIndex === idx ? 'border-blue-600 ring-4 ring-blue-50' : 'border-slate-100 hover:border-slate-300'}`}
+                      >
+                        <img 
+                          src={renderImage(img)} 
+                          className="w-full h-full object-contain" 
+                          alt={`View ${idx + 1}`} 
+                        />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="w-28 h-24 rounded-2xl border-2 border-blue-600 p-2">
+                    <img src={renderImage(selectedProduct.image)} className="w-full h-full object-contain" alt="" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-blue-600 font-black text-[10px] uppercase tracking-[0.4em]">Premium Selection</span>
+                <div className="flex items-center gap-1 text-[#F4C430]">
+                  <Star size={14} fill="currentColor" />
+                  <span className="text-sm font-black text-slate-900">{selectedProduct.ratings || "4.9"}</span>
+                </div>
+              </div>
+
+              <h1 className="text-5xl font-black text-slate-900 leading-[0.9] mb-6 uppercase italic tracking-tighter">
+                {selectedProduct.name}
+              </h1>
+              
+              <p className="text-4xl font-black text-slate-900 mb-10 flex items-start gap-1">
+                <span className="text-sm mt-2 text-blue-600 font-bold">PKR</span>
+                {selectedProduct.price?.toLocaleString() || "0"}
+              </p>
+
+              <div className="grid grid-cols-2 gap-y-8 gap-x-12 mb-12 bg-slate-50/50 p-10 rounded-[2.5rem] border border-slate-50">
+                <SpecItem icon={<Cpu size={14} />} label="Processor" value={selectedProduct.processor} />
+                <SpecItem icon={<Box size={14} />} label="Memory" value={selectedProduct.ram} />
+                <SpecItem icon={<HardDrive size={14} />} label="Storage" value={selectedProduct.storage} />
+                <SpecItem icon={<Zap size={14} />} label="Graphics" value={selectedProduct.graphics} />
+                <SpecItem icon={<Monitor size={14} />} label="Display" value={selectedProduct.display || "N/A"} />
+                <SpecItem icon={<ShieldCheck size={14} />} label="OS" value={selectedProduct.os || "Win 11 Pro"} />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 mb-10">
+                <button 
+                  onClick={() => handleAddToCart(selectedProduct)}
+                  className="flex-1 bg-slate-900 text-white py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-xl active:scale-95 group"
+                >
+                  <ShoppingCart size={18} className="group-hover:rotate-12 transition-transform" /> Add To Cart
+                </button>
+                <button 
+                  onClick={() => handleBuyNow(selectedProduct)}
+                  className="flex-1 bg-blue-600 text-white py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-slate-900 transition-all shadow-xl active:scale-95"
+                >
+                  <CreditCard size={18} /> Buy Now
                 </button>
               </div>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      ) : (
+        <>
+          <section className="relative w-full max-w-[1600px] mx-auto px-4 lg:px-12 py-4 mt-6">
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-[#A9D1F7] to-white border border-white/60 shadow-sm min-h-[450px] flex items-center">
+                <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center px-16">
+                  <div className="py-10">
+                    <span className="text-blue-600 font-black text-[10px] uppercase tracking-[0.4em] mb-4 block">New Season Drop</span>
+                    <h1 className="text-[50px] lg:text-[70px] font-black leading-[0.9] uppercase italic tracking-tighter mb-8">
+                      Next-Gen <br /> <span className="text-white drop-shadow-sm">Gaming</span> Laptops
+                    </h1>
+                    <Link to="/laptops" className="inline-block px-12 py-5 bg-slate-900 text-white font-black uppercase text-[10px] tracking-widest rounded-2xl shadow-2xl hover:bg-blue-600 transition-all">Shop Collection</Link>
+                  </div>
+                  <div className="flex justify-end">
+                    <img src={heroLaptop} className="w-[600px] object-contain drop-shadow-[0_35px_35px_rgba(0,0,0,0.25)]" alt="Hero" />
+                  </div>
+                </div>
+            </div>
 
-function Home() {
-  return (
-    <div className="w-full font-['Poppins','Inter',sans-serif] overflow-x-hidden">
-      <Hero />
-      <div className="max-w-[1400px] mx-auto px-4 md:px-12 py-10">
-        {/* Baaki sections */}
-      </div>
+            <div className="mt-20">
+              <FeaturedProducts setSelectedProduct={setSelectedProduct} />
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
-}
+};
+
+const SpecItem = ({ icon, label, value }) => (
+  <div className="flex flex-col">
+    <div className="flex items-center gap-2 text-slate-400 mb-1">
+      {icon} <p className="text-[9px] font-black uppercase tracking-widest">{label}</p>
+    </div>
+    <p className="text-sm font-black text-slate-800 uppercase italic">{value || "N/A"}</p>
+  </div>
+);
 
 export default Home;
