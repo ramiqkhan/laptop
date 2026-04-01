@@ -17,16 +17,11 @@ const Deals = () => {
   const API_URL = "http://localhost:5000/api/deals";
 
   const fetchDeals = async () => {
-    try {
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      setDealProducts(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Fetch Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const response = await fetch(API_URL);
+  const data = await response.json();
+  console.log("Deals from DB:", data); // Check karein ke yahan _id kya aa rahi hai
+  setDealProducts(data);
+};
 
   const renderImage = (imageSource) => {
     const imgObj = Array.isArray(imageSource) ? imageSource[activeImgIndex] || imageSource[0] : imageSource;
@@ -39,40 +34,38 @@ const Deals = () => {
   };
 
   // --- FIXED ADD TO CART LOGIC ---
-  const handleAddToCart = (product, silent = false) => {
-    const savedCart = localStorage.getItem('globalCart');
-    let currentCart = savedCart ? JSON.parse(savedCart) : [];
+// --- FIXED ADD TO CART LOGIC IN Deals.jsx ---
+const handleAddToCart = (product, silent = false) => {
+  const savedCart = localStorage.getItem('globalCart');
+  let currentCart = savedCart ? JSON.parse(savedCart) : [];
 
-    const existingItem = currentCart.find(item => item.id === product._id);
-    
-    if (existingItem) {
-      currentCart = currentCart.map(item =>
-        item.id === product._id ? { ...item, quantity: item.quantity + 1 } : item
-      );
-    } else {
-      currentCart.push({
-        id: product._id,
-        name: product.name,
-        price: product.price,
-        img: renderImage(product.images),
-        quantity: 1,
-        brand: product.brand,
-        processor: product.processor,
-        ram: product.ram,
-        storage: product.storage
-      });
-    }
+  // Yahan check karein ke hum product._id use kar rahe hain, name nahi
+  const existingItem = currentCart.find(item => item.id === product._id);
+  
+  if (existingItem) {
+    currentCart = currentCart.map(item =>
+      item.id === product._id ? { ...item, quantity: item.quantity + 1 } : item
+    );
+  } else {
+    currentCart.push({
+      id: product._id,         // <--- Ye MongoDB wali lambi ID honi chahiye
+      productId: product._id,  // <--- Backend isi ID ko dhoond raha hai
+      name: product.name,      // Ye "33" hoga, jo ke thik hai
+      price: product.price,
+      img: renderImage(product.images),
+      quantity: 1,
+      brand: product.brand,
+      processor: product.processor,
+      ram: product.ram,
+      storage: product.storage
+    });
+  }
 
-    localStorage.setItem('globalCart', JSON.stringify(currentCart));
-    
-    // Dispatching event for Navbar & Cart
-    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { id: product._id } }));
-    
-    if (!silent) {
-      alert("Added to cart!");
-    }
-  };
-
+  localStorage.setItem('globalCart', JSON.stringify(currentCart));
+  window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { id: product._id } }));
+  
+  if (!silent) alert("Added to cart!");
+};
   const handleBuyNow = (product) => {
     handleAddToCart(product, true);
     navigate('/cart');
