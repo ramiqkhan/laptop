@@ -150,57 +150,63 @@ const OrderConfirm = ({ isOpen, onClose, onConfirm, isPending, totalAmount }) =>
                         <h2 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter mb-2">Order Success!</h2>
                         <p className="text-gray-500 font-medium mb-8">Thank you, {formData.userName}! Your machine is being prepared.</p>
                         
-                        {/* ... baqi code same rahega ... */}
-<div className="bg-gray-50 rounded-2xl p-6 mb-8 text-left border border-gray-100">
-    <div className="flex items-center gap-3 mb-4 text-[#d6a11e]">
-        <Package size={20} />
-        <span className="font-black uppercase text-xs tracking-widest">Order Receipt</span>
-    </div>
-    
-    <div className="space-y-3">
-        {/* Order ID */}
-        <div className="flex justify-between border-b border-gray-200/50 pb-2">
-            <span className="text-gray-400 text-[10px] font-bold uppercase">Order ID</span>
-            <span className="text-slate-800 font-mono font-bold text-sm">
-                #{orderResult.orderId || orderResult._id}
-            </span>
-        </div>
+                        <div className="bg-gray-50 rounded-2xl p-6 mb-8 text-left border border-gray-100">
+                            <div className="flex items-center gap-3 mb-4 text-[#d6a11e]">
+                                <Package size={20} />
+                                <span className="font-black uppercase text-xs tracking-widest">Order Receipt</span>
+                            </div>
+                            
+                            <div className="space-y-3">
+                                {/* Order ID */}
+                                <div className="flex justify-between border-b border-gray-200/50 pb-2">
+                                    <span className="text-gray-400 text-[10px] font-bold uppercase">Order ID</span>
+                                    <span className="text-slate-800 font-mono font-bold text-sm">
+                                        #{orderResult.orderId || orderResult._id}
+                                    </span>
+                                </div>
 
-        {/* Customer Name */}
-        <div className="flex justify-between border-b border-gray-200/50 pb-2">
-            <span className="text-gray-400 text-[10px] font-bold uppercase">Customer</span>
-            <span className="text-slate-800 font-bold text-sm uppercase">
-                {orderResult.userName}
-            </span>
-        </div>
+                                {/* Customer Name */}
+                                <div className="flex justify-between border-b border-gray-200/50 pb-2">
+                                    <span className="text-gray-400 text-[10px] font-bold uppercase">Customer</span>
+                                    <span className="text-slate-800 font-bold text-sm uppercase">
+                                        {orderResult.userName}
+                                    </span>
+                                </div>
 
-        {/* Email & Phone */}
-        <div className="flex justify-between border-b border-gray-200/50 pb-2">
-            <span className="text-gray-400 text-[10px] font-bold uppercase">Contact</span>
-            <div className="text-right">
-                <p className="text-slate-800 font-bold text-sm">{orderResult.email}</p>
-                <p className="text-slate-500 font-medium text-xs">{orderResult.phone}</p>
-            </div>
-        </div>
+                                {/* Email & Phone */}
+                                <div className="flex justify-between border-b border-gray-200/50 pb-2">
+                                    <span className="text-gray-400 text-[10px] font-bold uppercase">Contact</span>
+                                    <div className="text-right">
+                                        <p className="text-slate-800 font-bold text-sm">{orderResult.email}</p>
+                                        <p className="text-slate-500 font-medium text-xs">{orderResult.phone}</p>
+                                    </div>
+                                </div>
 
-        {/* Shipping Address */}
-        <div className="flex flex-col gap-1 border-b border-gray-200/50 pb-2">
-            <span className="text-gray-400 text-[10px] font-bold uppercase">Shipping Address</span>
-            <span className="text-slate-700 font-medium text-xs leading-relaxed">
-                {orderResult.address}
-            </span>
-        </div>
+                                {/* Shipping Address */}
+                                <div className="flex flex-col gap-1 border-b border-gray-200/50 pb-2">
+                                    <span className="text-gray-400 text-[10px] font-bold uppercase">Shipping Address</span>
+                                    <span className="text-slate-700 font-medium text-xs leading-relaxed">
+                                        {orderResult.address}
+                                    </span>
+                                </div>
 
-        {/* Total Paid */}
-        <div className="flex justify-between pt-1">
-            <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Total Paid</span>
-            <span className="text-[#d6a11e] font-black text-base">
-                PKR {orderResult.totalAmount.toLocaleString()}
-            </span>
-        </div>
-    </div>
-</div>
-{/* ... Return to store button ... */}
+                                {/* Shipping Fee - NEW ROW ADDED */}
+                                <div className="flex justify-between border-b border-gray-200/50 pb-2">
+                                    <span className="text-gray-400 text-[10px] font-bold uppercase">Shipping Fee</span>
+                                    <span className="text-slate-800 font-bold text-sm">
+                                        PKR {(orderResult.shippingFee || 3500).toLocaleString()}
+                                    </span>
+                                </div>
+
+                                {/* Total Paid */}
+                                <div className="flex justify-between pt-1">
+                                    <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Total Paid</span>
+                                    <span className="text-[#d6a11e] font-black text-base">
+                                        PKR {orderResult.totalAmount.toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
                         <button 
                             onClick={() => {

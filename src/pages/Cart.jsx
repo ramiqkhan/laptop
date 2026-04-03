@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import OrderConfirm from '../components/OrderConfirm';
-
 
 const Cart = () => {
     const [cartItems, setCartItems] = useState(() => {
@@ -10,7 +9,7 @@ const Cart = () => {
         return savedCart ? JSON.parse(savedCart) : [];
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isPending, setIsPending] = useState(false); // To handle loading state
+    const [isPending, setIsPending] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,6 +37,7 @@ const Cart = () => {
         return () => window.removeEventListener('cartUpdated', handleCartUpdate);
     }, []);
 
+    // --- CALCULATIONS ---
     const subtotal = useMemo(() => cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0), [cartItems]);
     const shipping = cartItems.length > 0 ? 3500 : 0;
     const tax = cartItems.length > 0 ? (subtotal * 0.02) : 0;
@@ -53,55 +53,51 @@ const Cart = () => {
         setCartItems(prev => prev.filter(item => item.id !== id));
     };
 
-    // --- BACKEND INTEGRATION LOGIC ---
-   // Cart.jsx ke handleConfirmOrder mein ye payload check karein:
-
-const handleConfirmOrder = async (userData) => {
-    if (cartItems.length === 0) {
-        alert("Please select a product first!");
-        return;
-    }
-
-    setIsPending(true);
-    try {
-        const orderPayload = {
-            userName: userData.userName,
-            email: userData.email,
-            phone: userData.phone,
-            address: userData.address,
-            paymentType: userData.paymentType,
-            products: cartItems.map(item => ({
-                productId: item._id || item.id, 
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity
-            })),
-            totalAmount: total 
-        };
-
-        const response = await fetch('http://localhost:5000/api/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderPayload),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            setCartItems([]);
-            localStorage.removeItem('globalCart');
-            // 'data' mein ab 'orderId' shamil hoga jo backend ne bheja hai
-            return data; 
-        } else {
-            throw new Error(data.error || "Order failed");
+    const handleConfirmOrder = async (userData) => {
+        if (cartItems.length === 0) {
+            alert("Please select a product first!");
+            return;
         }
-    } catch (error) {
-        alert(error.message);
-        throw error;
-    } finally {
-        setIsPending(false);
-    }
-};
+
+        setIsPending(true);
+        try {
+            const orderPayload = {
+                userName: userData.userName,
+                email: userData.email,
+                phone: userData.phone,
+                address: userData.address,
+                paymentType: userData.paymentType,
+                products: cartItems.map(item => ({
+                    productId: item._id || item.id, 
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity
+                })),
+                totalAmount: total // Final total including shipping and tax
+            };
+
+            const response = await fetch('http://localhost:5000/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderPayload),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setCartItems([]);
+                localStorage.removeItem('globalCart');
+                return data; 
+            } else {
+                throw new Error(data.error || "Order failed");
+            }
+        } catch (error) {
+            alert(error.message);
+            throw error;
+        } finally {
+            setIsPending(false);
+        }
+    };
 
     return (
         <div className="bg-[#F8F9FA] min-h-screen p-4 md:p-10 font-sans relative">
@@ -132,9 +128,12 @@ const handleConfirmOrder = async (userData) => {
                                         <div className="flex-1">
                                             <h3 className="text-lg md:text-xl font-black text-slate-900 line-clamp-1 uppercase tracking-tighter italic">{item.name}</h3>
                                             <p className="text-gray-400 text-xs md:text-sm font-bold uppercase tracking-widest">{item.brand || "Premium"}</p>
-                                            <div className="flex text-[#d6a11e] text-[10px] md:text-xs mt-1">
-                                                {"★".repeat(5)}
-                                                <span className="text-gray-400 ml-1 font-bold">(12)</span>
+                                            
+                                            {/* Dynamic Rating */}
+                                            <div className="flex items-center gap-1 mt-1 text-[#d6a11e]">
+                                                <Star size={12} fill="currentColor" />
+                                                <span className="text-gray-900 text-[11px] font-black ml-1">{item.rating || "0.0"}</span>
+                                                <span className="text-gray-400 text-[10px] font-bold ml-1">(12)</span>
                                             </div>
                                         </div>
                                     </div>
@@ -158,39 +157,45 @@ const handleConfirmOrder = async (userData) => {
                     </div>
 
                     {/* Summary Section */}
-                    <div className="lg:w-[400px]">
-                        <div className="bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-gray-100 sticky top-24">
-                            <h2 className="text-xl md:text-2xl font-black mb-6 md:mb-8 text-slate-900 uppercase tracking-tighter italic">Order Summary</h2>
-                            <div className="space-y-4 mb-8 md:mb-10">
-                                <div className="flex justify-between text-base">
-                                    <span className="font-bold text-gray-500 uppercase text-xs tracking-widest">Subtotal</span>
-                                    <span className="font-black text-slate-900">PKR {subtotal.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between text-base">
-                                    <span className="font-bold text-gray-500 uppercase text-xs tracking-widest">Shipping</span>
-                                    <span className="font-black text-slate-900">PKR {shipping.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between text-base">
-                                    <span className="font-bold text-gray-500 uppercase text-xs tracking-widest">Estimated Tax (2%)</span>
-                                    <span className="font-black text-slate-900">PKR {tax.toLocaleString()}</span>
-                                </div>
-                            </div>
+                  {/* Summary Section */}
+<div className="lg:w-[400px]">
+    <div className="bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-gray-100 sticky top-24">
+        <h2 className="text-xl md:text-2xl font-black mb-6 md:mb-8 text-slate-900 uppercase tracking-tighter italic">Order Summary</h2>
+        <div className="space-y-4 mb-8 md:mb-10">
+            <div className="flex justify-between text-base">
+                <span className="font-bold text-gray-500 uppercase text-xs tracking-widest">Subtotal</span>
+                <span className="font-black text-slate-900">PKR {subtotal.toLocaleString()}</span>
+            </div>
+            
+            {/* Shipping Fee Display - Highlighted */}
+            <div className="flex justify-between text-base items-center bg-blue-50/50 p-2 rounded-lg border border-blue-100">
+                <span className="font-bold text-blue-700 uppercase text-xs tracking-widest">Shipping Fee</span>
+                <span className="font-black text-blue-600">
+                    {shipping > 0 ? `PKR ${shipping.toLocaleString()}` : "FREE"}
+                </span>
+            </div>
 
-                            <div className="border-t-2 border-dashed border-gray-100 my-6"></div>
+            <div className="flex justify-between text-base">
+                <span className="font-bold text-gray-500 uppercase text-xs tracking-widest">Estimated Tax (2%)</span>
+                <span className="font-black text-slate-900">PKR {tax.toLocaleString()}</span>
+            </div>
+        </div>
 
-                            <div className="flex justify-between items-center mb-8">
-                                <span className="text-lg font-black uppercase italic text-slate-900">Total</span>
-                                <span className="text-2xl font-black text-[#0F172A]">PKR {total.toLocaleString()}</span>
-                            </div>
+        <div className="border-t-2 border-dashed border-gray-100 my-6"></div>
 
-                            <button 
-                                onClick={() => setIsModalOpen(true)}
-                                className="w-full py-4 bg-gradient-to-r from-[#d6a11e] via-[#F4C430] to-[#d6a11e] text-slate-900 text-sm font-black rounded-2xl shadow-[0_10px_20px_rgba(214,161,30,0.3)] hover:brightness-110 transition-all active:scale-95 uppercase tracking-[0.2em]"
-                            >
-                                Confirm Order
-                            </button>
-                        </div>
-                    </div>
+        <div className="flex justify-between items-center mb-8">
+            <span className="text-lg font-black uppercase italic text-slate-900">Total</span>
+            <span className="text-2xl font-black text-[#0F172A]">PKR {total.toLocaleString()}</span>
+        </div>
+
+        <button 
+            onClick={() => setIsModalOpen(true)}
+            className="w-full py-4 bg-gradient-to-r from-[#d6a11e] via-[#F4C430] to-[#d6a11e] text-slate-900 text-sm font-black rounded-2xl shadow-[0_10px_20px_rgba(214,161,30,0.3)] hover:brightness-110 transition-all active:scale-95 uppercase tracking-[0.2em]"
+        >
+            Confirm Order
+        </button>
+    </div>
+</div>
                 </div>
             </div>
 

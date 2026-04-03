@@ -76,7 +76,7 @@ const Home = () => {
           storage: product.storage
         });
       }
-
+const ratingsToSave = product.averageRating || product.ratings || "0.0";
       localStorage.setItem('globalCart', JSON.stringify(currentCart));
       
       // Dispatch event for Navbar sync
@@ -152,7 +152,9 @@ const Home = () => {
                 <span className="text-blue-600 font-black text-[10px] uppercase tracking-[0.4em]">Premium Selection</span>
                 <div className="flex items-center gap-1 text-[#F4C430]">
                   <Star size={14} fill="currentColor" />
-                  <span className="text-sm font-black text-slate-900">{selectedProduct.ratings || "4.9"}</span>
+                 <span className="text-sm font-black text-slate-900">
+    {selectedProduct.averageRating || "0.0"}
+  </span>
                 </div>
               </div>
 

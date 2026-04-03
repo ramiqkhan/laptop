@@ -138,7 +138,9 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
                     </div>
                     <div className="flex items-center gap-1 text-[#F4C430]">
                       <Star size={10} fill="currentColor" />
-                      <span className="text-[10px] font-black text-slate-700">{product.ratings || "4.9"}</span>
+         <span className="text-xs font-bold">
+    {product.averageRating || "0.0"}
+  </span>
                     </div>
                   </div>
 
