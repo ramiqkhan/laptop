@@ -7,8 +7,8 @@ function warranty() {
       {/* Page Header - Fully Responsive */}
       <header className="mb-10 md:mb-16 border-b border-slate-100 pb-6 md:pb-10">
         <h1 className="text-[28px] sm:text-[36px] md:text-[48px] font-semibold text-slate-800 leading-tight">
-          Warranty <br className="hidden sm:block" />
-          <span className="text-[#D4AF37]">Policy</span>
+          Warranty 
+          <span className="text-[#D4AF37]"> Policy</span>
         </h1>
         <p className="mt-4 md:mt-6 text-[14px] md:text-[16px] font-normal text-slate-500 italic max-w-2xl">
           Your investment is protected with our comprehensive coverage.

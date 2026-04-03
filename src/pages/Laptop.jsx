@@ -199,122 +199,124 @@ const LaptopPage = () => {
           )}
 
           <main className="flex-1">
-            {selectedProduct ? (
-              <div className="animate-in fade-in duration-500">
-                <button 
-                  onClick={() => setSelectedProduct(null)}
-                  className="flex items-center gap-2 font-bold text-sm mb-6 text-gray-500 hover:text-blue-600 transition-all"
+          {selectedProduct ? (
+  <div className="animate-in fade-in duration-500">
+    <button 
+      onClick={() => setSelectedProduct(null)}
+      className="flex items-center gap-2 font-bold text-sm mb-6 text-[#0F172A] hover:text-[#F4C430] transition-all uppercase tracking-tighter"
+    >
+      <ArrowLeft size={18} /> Back to Laptops
+    </button>
+
+    <div className="bg-white rounded-3xl border border-[#E6E6E6] p-6 md:p-10 shadow-xl overflow-hidden relative">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        
+        {/* Left: Images Section */}
+        <div className="flex flex-col gap-4">
+          <div className="bg-[#F8F9FA] rounded-2xl p-8 flex items-center justify-center border border-gray-100 min-h-[400px]">
+            <img 
+              src={renderImage(selectedProduct, activeImageIndex)} 
+              alt={selectedProduct.name} 
+              className="max-h-[400px] object-contain drop-shadow-2xl transition-all duration-300" 
+            />
+          </div>
+          
+          {selectedProduct.images && selectedProduct.images.length > 1 && (
+            <div className="flex flex-wrap gap-3 justify-center">
+              {selectedProduct.images.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveImageIndex(idx)}
+                  className={`w-20 h-20 rounded-xl border-2 overflow-hidden bg-gray-50 transition-all ${activeImageIndex === idx ? 'border-[#F4C430] scale-105 shadow-md' : 'border-transparent hover:border-gray-200'}`}
                 >
-                  <ArrowLeft size={18} /> Back to Laptops
+                  <img 
+                    src={renderImage(selectedProduct, idx)} 
+                    alt={`View ${idx}`} 
+                    className="w-full h-full object-contain p-2"
+                  />
                 </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-                <div className="bg-white rounded-3xl border border-[#E6E6E6] p-6 md:p-10 shadow-sm">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                    
-                    <div className="flex flex-col gap-4">
-                      <div className="bg-[#F8F9FA] rounded-2xl p-8 flex items-center justify-center border border-gray-100 min-h-[400px]">
-                        <img 
-                          src={renderImage(selectedProduct, activeImageIndex)} 
-                          alt={selectedProduct.name} 
-                          className="max-h-[400px] object-contain drop-shadow-xl transition-all duration-300" 
-                        />
-                      </div>
-                      
-                      {selectedProduct.images && selectedProduct.images.length > 1 && (
-                        <div className="flex flex-wrap gap-3 justify-center">
-                          {selectedProduct.images.map((_, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => setActiveImageIndex(idx)}
-                              className={`w-20 h-20 rounded-xl border-2 overflow-hidden bg-gray-50 transition-all ${activeImageIndex === idx ? 'border-blue-600 scale-105 shadow-sm' : 'border-transparent hover:border-gray-200'}`}
-                            >
-                              <img 
-                                src={renderImage(selectedProduct, idx)} 
-                                alt={`View ${idx}`} 
-                                className="w-full h-full object-contain p-2"
-                              />
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+        {/* Right: Details Section */}
+        <div className="flex flex-col">
+          <div className="mb-2">
+            <span className="px-3 py-1 bg-[#0F172A] text-white text-[10px] font-black rounded-md uppercase tracking-widest italic">
+              Premium Quality
+            </span>
+          </div>
+          
+          <h2 className="text-3xl md:text-5xl font-black text-[#0F172A] mb-3 leading-tight uppercase italic tracking-tighter">
+            {selectedProduct.name}
+          </h2>
 
-                    <div className="flex flex-col">
-                      <h2 className="text-3xl md:text-4xl font-black text-[#0F172A] mb-2 leading-tight uppercase italic tracking-tighter">
-                        {selectedProduct.name}
-                      </h2>
+          {/* Golden Rating Display */}
+          <div className="flex items-center gap-2 mb-6">
+            <div className="flex text-[#F4C430]">
+              {[...Array(5)].map((_, i) => (
+                <Star 
+                  key={i} 
+                  size={18} 
+                  fill={i < Math.floor(selectedProduct.averageRating || 0) ? "#F4C430" : "none"} 
+                  className={i < Math.floor(selectedProduct.averageRating || 0) ? "text-[#F4C430]" : "text-gray-200"}
+                />
+              ))}
+            </div>
+            <span className="text-sm font-black text-gray-400">
+              {selectedProduct.averageRating || 0}
+            </span>
+          </div>
 
-                      {/* STAR RATING DISPLAY */}
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="flex text-blue-600">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              size={16} 
-                              fill={i < Math.floor(selectedProduct.averageRating || 0) ? "#2563eb" : "none"} 
-                              className={i < Math.floor(selectedProduct.averageRating || 0) ? "" : "text-gray-300"}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-xs font-bold text-gray-500">
-                          {selectedProduct.averageRating || 0} ({selectedProduct.ratings?.length || 0} Reviews)
-                        </span>
-                      </div>
-
-                      <div className="mb-6">
-                        <span className="text-4xl font-black text-[#0F172A]">PKR {selectedProduct.price.toLocaleString()}</span>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3 mb-6">
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                          <p className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1">Processor</p>
-                          <p className="text-xs font-bold text-slate-800">{selectedProduct.processor}</p>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                          <p className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1">RAM</p>
-                          <p className="text-xs font-bold text-slate-800">{selectedProduct.ram}</p>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                          <p className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1">Graphics</p>
-                          <p className="text-xs font-bold text-slate-800">{selectedProduct.gpu}</p>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                          <p className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1">Storage</p>
-                          <p className="text-xs font-bold text-slate-800">{selectedProduct.storage}</p>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                          <p className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1">Display</p>
-                          <p className="text-xs font-bold text-slate-800">{selectedProduct.display || 'Full HD'}</p>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                          <p className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mb-1">OS</p>
-                          <p className="text-xs font-bold text-slate-800">{selectedProduct.os || 'Windows 11'}</p>
-                        </div>
-                      </div>
-
-                      {/* CORE FEATURES LIST */}
-                      {selectedProduct.features && selectedProduct.features.length > 0 && (
-                        <div className="mb-8">
-                          <p className="text-[10px] uppercase font-black text-gray-400 tracking-[0.2em] mb-3">Key Features</p>
-                          <div className="flex flex-wrap gap-2">
-                            {selectedProduct.features.map((feature, idx) => (
-                              <span key={idx} className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-lg border border-blue-100 uppercase">
-                                {feature}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex flex-col sm:flex-row gap-4 mt-auto">
-                        <button onClick={() => addToCart(selectedProduct)} className="flex-1 py-4 bg-slate-900 text-white font-bold rounded-xl hover:bg-[#b8962d] transition-all uppercase tracking-widest text-xs">Add To Cart</button>
-                        <button onClick={() => handleBuyNow(selectedProduct)} className="flex-1 py-4 bg-gradient-to-r from-[#F4C430] to-[#d6a11e] text-slate-900 font-bold rounded-xl uppercase tracking-widest text-xs shadow-lg hover:brightness-110 transition-all">Buy Now</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <div className="mb-8 p-4 bg-[#F8F9FA] rounded-2xl border-l-4 border-[#F4C430]">
+            <p className="text-xs font-bold text-gray-400 uppercase mb-1 tracking-widest">Special Price</p>
+            <span className="text-4xl md:text-5xl font-black text-[#0F172A]">
+              PKR {selectedProduct.price.toLocaleString()}
+            </span>
+          </div>
+          
+          {/* Specs Grid with Navy Icons */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+            {[
+              { label: 'Processor', value: selectedProduct.processor, icon: <Cpu size={16}/> },
+              { label: 'RAM', value: selectedProduct.ram, icon: <Zap size={16}/> },
+              { label: 'Graphics', value: selectedProduct.gpu, icon: <Monitor size={16}/> },
+              { label: 'Storage', value: selectedProduct.storage, icon: <HardDrive size={16}/> },
+              { label: 'Display', value: selectedProduct.display || 'Full HD', icon: <Box size={16}/> },
+              { label: 'OS', value: selectedProduct.os || 'Windows 11', icon: <ShieldCheck size={16}/> },
+            ].map((spec, index) => (
+              <div key={index} className="p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:border-[#F4C430] transition-colors group">
+                <div className="text-[#0F172A] mb-1 group-hover:scale-110 transition-transform">{spec.icon}</div>
+                <p className="text-[9px] uppercase font-black text-gray-400 tracking-tighter mb-0.5">{spec.label}</p>
+                <p className="text-[11px] font-bold text-slate-800 line-clamp-1">{spec.value}</p>
               </div>
-            ) : (
+            ))}
+          </div>
+
+          {/* Action Buttons - Fully Matched with your Screenshots */}
+          <div className="flex flex-col sm:flex-row gap-4 mt-auto">
+            {/* Dark Navy Button */}
+            <button 
+              onClick={() => addToCart(selectedProduct)} 
+              className="flex-1 py-5 bg-[#0F172A] text-white font-black rounded-2xl hover:bg-black transition-all uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 shadow-lg"
+            >
+              <ShoppingCart size={18} /> Add To Cart
+            </button>
+            
+            {/* Golden Gradient Button */}
+            <button 
+              onClick={() => handleBuyNow(selectedProduct)} 
+              className="flex-1 py-5 bg-gradient-to-r from-[#F4C430] to-[#d6a11e] text-[#0F172A] font-black rounded-2xl uppercase tracking-[0.2em] text-xs shadow-[0_10px_20px_rgba(244,196,48,0.3)] hover:brightness-110 hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
+            >
+              <CreditCard size={18} /> Buy Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+) : (
               <>
                 <div className="bg-white rounded-2xl border border-[#E6E6E6] p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
                   <p className="text-gray-700 font-semibold text-xs sm:text-sm">
@@ -329,25 +331,91 @@ const LaptopPage = () => {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {currentProducts.map((product) => (
-                    <div key={product._id} className="bg-white rounded-2xl border border-[#E6E6E6] shadow-sm p-5 hover:shadow-xl transition-all flex flex-col group relative">
-                      <div className="cursor-pointer" onClick={() => { setSelectedProduct(product); setActiveImageIndex(0); window.scrollTo(0,0); }}>
-                        <div className="h-44 flex items-center justify-center mb-6">
-                          <img src={renderImage(product)} alt={product.name} className="max-h-full object-contain group-hover:scale-105 transition-transform duration-500" />
-                        </div>
-                        <h3 className="text-lg font-extrabold text-[#0F172A] mb-2 leading-tight h-14 overflow-hidden group-hover:text-[#d6a11e] transition-colors">{product.name}</h3>
-                      </div>
-                      <div className="mt-auto">
-                        <div className="mb-4"><span className="text-xl font-black text-[#0F172A]">PKR {product.price.toLocaleString()}</span></div>
-                        <div className="flex flex-col gap-2">
-                          <button onClick={() => addToCart(product)} className="w-full py-2.5 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-blue-600 transition-colors uppercase tracking-wider">Add to Cart</button>
-                          <button onClick={() => { setSelectedProduct(product); setActiveImageIndex(0); window.scrollTo(0,0); }} className="w-full py-2.5 bg-gradient-to-r from-[#F4C430] to-[#f9f9f9] text-slate-900 text-xs font-bold rounded-xl border border-[#d6a11e] text-center uppercase tracking-wider hover:bg-[#d6a11e] transition-all">View Details</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {/* --- UPDATED CLEAN CARD GRID --- */}
+<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+  {currentProducts.map((product) => (
+    <div 
+      key={product._id} 
+      className="bg-white rounded-2xl border border-[#E6E6E6] p-5 hover:shadow-2xl transition-all flex flex-col group relative overflow-hidden"
+      style={{ boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
+    >
+      {/* Clickable Area */}
+      <div 
+        className="cursor-pointer" 
+        onClick={() => { setSelectedProduct(product); setActiveImageIndex(0); window.scrollTo(0,0); }}
+      >
+        {/* Image Container with subtle gray bg like your screenshot */}
+        <div className="h-44 flex items-center justify-center mb-5 bg-[#F8F9FA] rounded-2xl overflow-hidden p-6">
+          <img 
+            src={renderImage(product)} 
+            alt={product.name} 
+            className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500" 
+          />
+        </div>
+
+        {/* Product Name - Bold & Dark like your UI */}
+        <h3 className="text-lg font-black text-[#0F172A] mb-1 line-clamp-1 group-hover:text-[#F4C430] transition-colors uppercase italic tracking-tighter">
+          {product.name}
+        </h3>
+
+        {/* --- RATING (Golden/Yellow theme from your screenshots) --- */}
+        <div className="flex items-center gap-1.5 mb-3">
+          <div className="flex text-[#F4C430]">
+            {[...Array(5)].map((_, i) => (
+              <Star 
+                key={i} 
+                size={14} 
+                fill={i < Math.floor(product.averageRating || 0) ? "#F4C430" : "none"} 
+                className={i < Math.floor(product.averageRating || 0) ? "text-[#F4C430]" : "text-gray-300"}
+              />
+            ))}
+          </div>
+          <span className="text-[11px] font-bold text-gray-400">
+             {product.averageRating || 0}
+          </span>
+        </div>
+
+        {/* Quick Specs - Blue icons to match primary buttons */}
+        <div className="flex gap-4 mb-4 text-[11px] text-gray-500 font-bold uppercase tracking-tight">
+          <div className="flex items-center gap-1.5">
+            <Cpu size={14} className="text-[#0F172A]" /> 
+            {product.processor ? product.processor.split(' ')[0] : 'N/A'}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Zap size={14} className="text-[#0F172A]" /> 
+            {product.ram}
+          </div>
+        </div>
+
+        {/* Price - Bold and Large */}
+        <div className="mb-5">
+          <span className="text-xl font-black text-[#0F172A]">
+            PKR {product.price.toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      {/* --- THEMED BUTTONS (Matching your uploaded screenshots) --- */}
+      <div className="mt-auto flex flex-col gap-2.5">
+        {/* Dark Navy Button (Add to Cart theme) */}
+        <button 
+          onClick={() => addToCart(product)} 
+          className="w-full py-3 bg-[#0F172A] text-white text-[11px] font-black rounded-xl hover:opacity-90 transition-all uppercase tracking-[0.15em] flex items-center justify-center gap-2"
+        >
+          <ShoppingCart size={16} /> Add to Cart
+        </button>
+        
+        {/* Golden/Yellow Gradient Button (View Details/Buy Now theme) */}
+        <button 
+          onClick={() => { setSelectedProduct(product); setActiveImageIndex(0); window.scrollTo(0,0); }} 
+          className="w-full py-3 bg-gradient-to-r from-[#F4C430] to-[#E2B020] text-[#0F172A] text-[11px] font-black rounded-xl border border-[#D4A017] text-center uppercase tracking-[0.15em] shadow-md hover:brightness-105 transition-all"
+        >
+          View Details
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
 
                 {totalPages > 1 && (
                   <div className="mt-12 flex justify-center items-center gap-3">

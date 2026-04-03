@@ -101,7 +101,8 @@ function Navbar() {
         { name: 'Home', path: '/' },
         { name: 'Laptops', path: '/laptops' }, 
         { name: 'Gaming', path: '/gaming' }, 
-        { name: 'Deals', path: '/deals' }
+        { name: 'Deals', path: '/deals' },
+         { name: 'About us', path: '/about' }
     ]
 
     return (
