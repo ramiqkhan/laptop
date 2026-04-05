@@ -69,42 +69,43 @@ const GamingLaptop = () => {
     RAM: true,
     GPU: true
   });
+const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-eta.vercel.app";
+const API_URL = `${BASE_URL}/api/products`;
 
-  // --- FETCH GAMING PRODUCTS ---
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams(location.search);
-        const searchQuery = params.get('search');
-        
-        let url = 'http://localhost:5000/api/products?category=gaming';
-        if (searchQuery) {
-          url += `&search=${encodeURIComponent(searchQuery)}`;
-        }
+// --- FETCH GAMING PRODUCTS ---
+useEffect(() => {
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams(location.search);
+      const searchQuery = params.get('search');
 
-        const response = await fetch(url);
-        const data = await response.json();
-        setProducts(data);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      } finally {
-        setLoading(false);
+      // Updated backend URL
+      let url = 'https://laptopbackend-eta.vercel.app/api/products?category=gaming';
+      if (searchQuery) {
+        url += `&search=${encodeURIComponent(searchQuery)}`;
       }
-    };
-    fetchProducts();
-  }, [location.search]);
 
-  const renderImage = (product, index = 0) => {
-    if (product.images && product.images.length > index && product.images[index].data) {
-      const imageData = product.images[index].data.data || product.images[index].data;
-      const base64String = btoa(
-        new Uint8Array(imageData).reduce((data, byte) => data + String.fromCharCode(byte), '')
-      );
-      return `data:${product.images[index].contentType};base64,${base64String}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const data = await response.json();
+      setProducts(data);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
     }
-    return 'https://placehold.co/400x300?text=No+Gaming+Image';
   };
+
+  fetchProducts();
+}, [location.search]);
+
+ const renderImage = (product, index = 0) => {
+  if (!product || !product.images || product.images.length === 0) {
+    return "https://via.placeholder.com/150?text=No+Image";
+  }
+  return product.images[index].url || product.images[index];
+};
 
   const filteredAndSortedProducts = useMemo(() => {
     let result = products.filter(p => p.category === 'gaming');

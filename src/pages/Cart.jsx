@@ -53,51 +53,51 @@ const Cart = () => {
         setCartItems(prev => prev.filter(item => item.id !== id));
     };
 
-    const handleConfirmOrder = async (userData) => {
-        if (cartItems.length === 0) {
-            alert("Please select a product first!");
-            return;
+  const handleConfirmOrder = async (userData) => {
+    if (cartItems.length === 0) {
+        alert("Please select a product first!");
+        return;
+    }
+
+    setIsPending(true);
+    try {
+        const orderPayload = {
+            userName: userData.userName,
+            email: userData.email,
+            phone: userData.phone,
+            address: userData.address,
+            paymentType: userData.paymentType,
+            products: cartItems.map(item => ({
+                productId: item._id || item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+            })),
+            totalAmount: total
+        };
+
+        const response = await fetch('https://laptopbackend-eta.vercel.app/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderPayload),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setCartItems([]);
+            localStorage.removeItem('globalCart');
+            return data; 
+        } else {
+            throw new Error(data.error || "Order failed");
         }
-
-        setIsPending(true);
-        try {
-            const orderPayload = {
-                userName: userData.userName,
-                email: userData.email,
-                phone: userData.phone,
-                address: userData.address,
-                paymentType: userData.paymentType,
-                products: cartItems.map(item => ({
-                    productId: item._id || item.id, 
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity
-                })),
-                totalAmount: total // Final total including shipping and tax
-            };
-
-            const response = await fetch('http://localhost:5000/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderPayload),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                setCartItems([]);
-                localStorage.removeItem('globalCart');
-                return data; 
-            } else {
-                throw new Error(data.error || "Order failed");
-            }
-        } catch (error) {
-            alert(error.message);
-            throw error;
-        } finally {
-            setIsPending(false);
-        }
-    };
+    } catch (error) {
+        alert(error.message);
+        throw error;
+    } finally {
+        setIsPending(false);
+    }
+};
 
     return (
         <div className="bg-[#F8F9FA] min-h-screen p-4 md:p-10 font-sans relative">

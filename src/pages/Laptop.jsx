@@ -9,13 +9,14 @@ const LaptopPage = () => {
   const [sortBy, setSortBy] = useState('default');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
+const [error, setError] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const location = useLocation();
   const navigate = useNavigate(); 
   const itemsPerPage = 6;
-
+ const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-eta.vercel.app";
+  const API_URL = `${BASE_URL}/api/products`;
   // --- FIXED & SYNCED ADD TO CART ---
   const addToCart = (product, silent = false) => {
     if (!product) return;
@@ -71,40 +72,40 @@ const LaptopPage = () => {
     GPU: true
   });
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams(location.search);
-        const searchQuery = params.get('search');
-        
-        let url = 'http://localhost:5000/api/products?category=normal';
-        if (searchQuery) {
-          url += `&search=${encodeURIComponent(searchQuery)}`;
-        }
 
-        const response = await fetch(url);
-        const data = await response.json();
-        setProducts(data);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, [location.search]);
 
-  const renderImage = (product, index = 0) => {
-    if (product.images && product.images.length > index && product.images[index].data) {
-      const imageData = product.images[index].data.data || product.images[index].data;
-      const base64String = btoa(
-        new Uint8Array(imageData).reduce((data, byte) => data + String.fromCharCode(byte), '')
-      );
-      return `data:${product.images[index].contentType};base64,${base64String}`;
+ const fetchProducts = async () => {
+    setLoading(true);
+    try {
+    const url = selectedFilters.Brand.length > 0
+  ? `${BASE_URL}/api/products?brand=${selectedFilters.Brand[0]}`
+  : `${BASE_URL}/api/products`;
+
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      setProducts(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      alert("Failed to fetch products. Check backend URL & CORS.");
+    } finally {
+      setLoading(false);
     }
-    return 'https://placehold.co/400x300?text=No+Image';
   };
+
+// Fetch products when component mounts
+useEffect(() => {
+  fetchProducts();
+}, []);
+ 
+
+const renderImage = (product, index = 0) => {
+  if (!product || !product.images || product.images.length === 0) {
+    return "https://via.placeholder.com/150?text=No+Image";
+  }
+  return product.images[index].url || product.images[index];
+};
 
   const filteredAndSortedProducts = useMemo(() => {
     let result = products.filter(p => p.category === 'normal');
@@ -144,12 +145,21 @@ const LaptopPage = () => {
     { title: "GPU", options: ["Intel Iris Xe", "AMD Radeon", "M2 Core", "Integrated"] },
   ];
 
-  if (loading) return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-slate-900"></div>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-slate-900"></div>
+      </div>
+    );
+  }
 
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-red-500 font-bold text-lg">{error}</p>
+      </div>
+    );
+  }
   return (
     <div className="bg-[#F8F9FA] min-h-screen font-sans pb-12">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">

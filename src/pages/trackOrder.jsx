@@ -10,42 +10,40 @@ function TrackOrder() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleTrack = async (e) => {
-    e.preventDefault();
-    
-    // Cleaning the input (Removing '#' if user enters it)
-    const cleanOrderId = orderId.replace('#', '').replace('SCMS-', '').trim();
-    const cleanEmail = email.trim();
+ const handleTrack = async (e) => {
+  e.preventDefault();
+  
+  // Clean inputs
+  const cleanOrderId = orderId.replace('#', '').replace('SCMS-', '').trim();
+  const cleanEmail = email.trim();
 
-    if (!cleanOrderId || !cleanEmail) {
-      setError("Please enter both Order ID and Email.");
-      return;
+  if (!cleanOrderId || !cleanEmail) {
+    setError("Please enter both Order ID and Email.");
+    return;
+  }
+
+  setLoading(true);
+  setError('');
+  setOrderData(null);
+
+  try {
+    const res = await fetch(
+      `https://laptopbackend-eta.vercel.app/api/orders/track?orderId=${encodeURIComponent(cleanOrderId)}&email=${encodeURIComponent(cleanEmail)}`
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setOrderData(data);
+    } else {
+      setError(data.message || "Order nahi mila. Details check karein.");
     }
-
-    setLoading(true);
-    setError('');
-    setOrderData(null);
-
-    try {
-      // Backend API call with encoded components to avoid URL breaks
-      const res = await fetch(
-        `http://localhost:5000/api/orders/track?orderId=${encodeURIComponent(cleanOrderId)}&email=${encodeURIComponent(cleanEmail)}`
-      );
-      
-      const data = await res.json();
-
-      if (res.ok) {
-        setOrderData(data);
-      } else {
-        setError(data.message || "Order nahi mila. Details check karein.");
-      }
-    } catch (err) {
-      setError("Server se rabta nahi ho pa raha.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  } catch (err) {
+    setError("Server se rabta nahi ho pa raha.");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-8 lg:px-12 py-10 md:py-16 font-['Poppins','Inter',sans-serif]">
       

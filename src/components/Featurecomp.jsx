@@ -7,7 +7,29 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
   const [error, setError] = useState(null);
   const [currentImageIndexes, setCurrentImageIndexes] = useState({});
 
-  const API_URL = "http://localhost:5000/api/featured-products/all";
+const API_URL = `${import.meta.env.VITE_API_URL || "https://laptopbackend-eta.vercel.app"}/api/featured-products`;
+
+const fetchProducts = async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const response = await fetch(`${API_URL}/all`); // Use /all like admin
+    if (!response.ok) throw new Error(`Status: ${response.status}`);
+    const data = await response.json();
+    setProducts(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error("Fetch Error:", err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchProducts();
+}, []);
+
+
 
   // --- ADD TO CART LOGIC (LaptopPage se synced) ---
   const handleAddToCart = (product) => {
@@ -49,15 +71,18 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
     }
   };
 
-  const renderImage = (imageObj) => {
-    if (!imageObj || !imageObj.data || !imageObj.data.data) return "https://via.placeholder.com/300x200?text=No+Image";
-    try {
-      const binary = imageObj.data.data;
-      let binaryString = "";
-      for (let i = 0; i < binary.length; i++) binaryString += String.fromCharCode(binary[i]);
-      return `data:${imageObj.contentType || 'image/jpeg'};base64,${btoa(binaryString)}`;
-    } catch (err) { return "https://via.placeholder.com/300x200?text=Error"; }
-  };
+ const renderImage = (imageSource) => {
+  if (!imageSource || imageSource.length === 0) {
+    return "https://via.placeholder.com/150?text=No+Image";
+  }
+
+  // Agar array hai toh first URL return karo
+  if (Array.isArray(imageSource)) {
+    return imageSource[0].url || imageSource[0]; // Cloudinary URL ya direct string
+  }
+
+  return imageSource.url || imageSource; // single image object ya URL
+};
 
   const handlePrevImage = (e, productId, totalImages) => {
     e.stopPropagation();
@@ -75,17 +100,7 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
     }));
   };
 
-  useEffect(() => {
-    const fetchFeatured = async () => {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error(`Status: ${response.status}`);
-        const data = await response.json();
-        setProducts(Array.isArray(data) ? data : []);
-      } catch (err) { setError(err.message); } finally { setLoading(false); }
-    };
-    fetchFeatured();
-  }, []);
+
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-24 text-slate-400">

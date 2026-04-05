@@ -14,30 +14,46 @@ const Deals = () => {
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 12, mins: 45, secs: 30 });
 
-  const API_URL = "http://localhost:5000/api/deals";
+const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-eta.vercel.app";
 
-  const fetchDeals = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      setDealProducts(data);
-    } catch (error) {
-      console.error("Error fetching deals:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const renderImage = (imageSource, index = 0) => {
-    const imgObj = Array.isArray(imageSource) ? imageSource[index] || imageSource[0] : imageSource;
-    if (!imgObj || !imgObj.data) return "https://via.placeholder.com/600x400?text=No+Image";
-    try {
-      const bufferData = imgObj.data.data || imgObj.data;
-      const binary = new Uint8Array(bufferData).reduce((acc, byte) => acc + String.fromCharCode(byte), '');
-      return `data:${imgObj.contentType || 'image/jpeg'};base64,${btoa(binary)}`;
-    } catch (err) { return "https://via.placeholder.com/600x400?text=Error"; }
-  };
+// --- FETCH GAMING PRODUCTS ---
+const fetchDeals = async () => {
+  setLoading(true);
+  try {
+    const url = `${BASE_URL}/api/deals`; // or `deals` if backend has a deals endpoint
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const data = await response.json();
+    setDealProducts(data);
+  } catch (err) {
+    console.error("Error fetching deals:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+const renderImage = (productOrImages, index = 0) => {
+  // Handle both product object or array of images
+  let images = [];
+
+  // If it’s a product object with .images
+  if (productOrImages?.images) {
+    images = productOrImages.images;
+  } 
+  // If it’s already an array of images
+  else if (Array.isArray(productOrImages)) {
+    images = productOrImages;
+  }
+
+  if (!images || images.length === 0) {
+    return "https://via.placeholder.com/150?text=No+Image";
+  }
+
+  const image = images[index];
+
+  // image might be string URL or object with .url
+  return image?.url || image;
+};
 
   const handleAddToCart = (product, silent = false) => {
     const savedCart = localStorage.getItem('globalCart');
@@ -114,7 +130,7 @@ const Deals = () => {
                     </span>
                   </div>
                   <img 
-                    src={renderImage(selectedDeal.images, activeImgIndex)} 
+                    src={renderImage(selectedDeal, activeImgIndex)}
                     className="max-h-full w-auto object-contain drop-shadow-2xl transition-all duration-700" 
                     alt={selectedDeal.name} 
                   />
@@ -238,7 +254,7 @@ const Deals = () => {
 
                     {/* Image Box */}
                     <div className="bg-[#F8F9FA] rounded-[2rem] p-8 h-64 flex items-center justify-center mb-8 relative overflow-hidden">
-                       <img src={renderImage(deal.images[0])} className="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-700 drop-shadow-xl" alt={deal.name} />
+                       <img src={renderImage(deal.images)} className="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-700 drop-shadow-xl" alt={deal.name} />
                     </div>
 
                     {/* Content */}
