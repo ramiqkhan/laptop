@@ -24,25 +24,31 @@ const Lenovo = () => {
 
   const navigate = useNavigate(); 
   const itemsPerPage = 6;
-
+const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-eta.vercel.app";
   // --- API FETCHING ---
-  useEffect(() => {
-    const fetchLenovoProducts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch('http://localhost:5000/api/products?category=normal');
-        const data = await response.json();
-        const lenovoOnly = data.filter(p => p.brand?.toUpperCase() === 'LENOVO');
-        setProducts(lenovoOnly);
-      } catch (err) {
-        console.error("Error fetching Lenovo products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLenovoProducts();
-  }, []);
+ useEffect(() => {
+  const fetchLenovoProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${BASE_URL}/api/products?category=normal`);
+      const data = await response.json();
+      const lenovoOnly = data.filter(p => p.brand?.toUpperCase() === 'LENOVO');
+      setProducts(lenovoOnly);
+    } catch (err) {
+      console.error("Error fetching Lenovo products:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchLenovoProducts();
+}, []);
 
+const renderImage = (product, index = 0) => {
+if (!product || !product.images || product.images.length === 0) {
+  return "https://via.placeholder.com/150?text=No+Image";
+}
+return product.images[index].url || product.images[index];
+};
   // --- UTILS ---
   const toggleSection = (section) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -58,16 +64,6 @@ const Lenovo = () => {
     setCurrentPage(1);
   };
 
-  const renderImage = (product, index = 0) => {
-    if (product.images && product.images.length > index && product.images[index].data) {
-      const imageData = product.images[index].data.data || product.images[index].data;
-      const base64String = btoa(
-        new Uint8Array(imageData).reduce((data, byte) => data + String.fromCharCode(byte), '')
-      );
-      return `data:${product.images[index].contentType};base64,${base64String}`;
-    }
-    return 'https://placehold.co/400x300?text=Lenovo+Laptop';
-  };
 
   // --- CART LOGIC ---
   const addToCart = (product, silent = false) => {
@@ -85,7 +81,7 @@ const Lenovo = () => {
         price: Number(product.price),
         img: renderImage(product),
         quantity: 1,
-        brand: "Lenovo",
+        brand: "LENOVO",
         ram: product.ram,
         processor: product.processor
       });
@@ -200,12 +196,21 @@ const Lenovo = () => {
                     {selectedProduct.name}
                   </h2>
 
-                  <div className="flex items-center gap-3 mb-8">
-                    <div className="flex text-[#F4C430]">
-                      {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="#F4C430" />)}
-                    </div>
-                    <span className="text-xs font-black text-gray-400 italic">(4.9/5.0)</span>
-                  </div>
+                <div className="flex items-center gap-3 mb-8">
+  <div className="flex text-[#F4C430]">
+    {[...Array(5)].map((_, i) => (
+      <Star
+        key={i}
+        size={18}
+        fill={i < Math.floor(selectedProduct.averageRating || 0) ? "#F4C430" : "none"}
+        className={i < Math.floor(selectedProduct.averageRating || 0) ? "text-[#F4C430]" : "text-gray-300"}
+      />
+    ))}
+  </div>
+  <span className="text-xs font-black text-gray-400 italic">
+    ({selectedProduct.averageRating || 0}/5.0)
+  </span>
+</div>
 
                   <div className="mb-10 p-6 bg-[#F8F9FA] rounded-[24px] border-l-8 border-[#F4C430] shadow-sm">
                     <p className="text-[10px] font-black text-gray-400 uppercase mb-1 tracking-[0.2em]">Current Market Price</p>

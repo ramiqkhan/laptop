@@ -131,17 +131,7 @@ function Navbar() {
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-4">
-                        <div className="relative hidden sm:block w-32 md:w-56 lg:w-72">
-                            <input 
-                                type="text" 
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyDown={handleSearch}
-                                placeholder="Search laptops..." 
-                                className="w-full pl-3 pr-10 py-1.5 bg-slate-50 text-[12px] rounded-lg border border-[#E6E6E6] focus:border-[#D4AF37] outline-none transition-all" 
-                            />
-                            <button onClick={handleSearch} className={`absolute right-1 top-1 p-1.5 rounded-md ${PRIMARY_COLOR} text-white hover:brightness-110 transition-all`}><Search size={12} /></button>
-                        </div>
+                      
 
                         <div className="flex items-center gap-3 md:gap-4">
                             <button onClick={() => openDrawer('Wishlist')} className="relative cursor-pointer group">

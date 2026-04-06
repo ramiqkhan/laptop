@@ -24,25 +24,31 @@ const Dell = () => {
 
   const navigate = useNavigate(); 
   const itemsPerPage = 6;
-
+const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-eta.vercel.app";
   // --- API FETCHING ---
-  useEffect(() => {
-    const fetchDellProducts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch('http://localhost:5000/api/products?category=normal');
-        const data = await response.json();
-        const dellOnly = data.filter(p => p.brand?.toUpperCase() === 'DELL');
-        setProducts(dellOnly);
-      } catch (err) {
-        console.error("Error fetching Dell products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDellProducts();
-  }, []);
+ useEffect(() => {
+  const fetchDellProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${BASE_URL}/api/products?category=normal`);
+      const data = await response.json();
+      const dellOnly = data.filter(p => p.brand?.toUpperCase() === 'DELL');
+      setProducts(dellOnly);
+    } catch (err) {
+      console.error("Error fetching Dell products:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchDellProducts();
+}, []);
 
+const renderImage = (product, index = 0) => {
+if (!product || !product.images || product.images.length === 0) {
+  return "https://via.placeholder.com/150?text=No+Image";
+}
+return product.images[index].url || product.images[index];
+};
   // --- UTILS ---
   const toggleSection = (section) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -58,16 +64,6 @@ const Dell = () => {
     setCurrentPage(1);
   };
 
-  const renderImage = (product, index = 0) => {
-    if (product.images && product.images.length > index && product.images[index].data) {
-      const imageData = product.images[index].data.data || product.images[index].data;
-      const base64String = btoa(
-        new Uint8Array(imageData).reduce((data, byte) => data + String.fromCharCode(byte), '')
-      );
-      return `data:${product.images[index].contentType};base64,${base64String}`;
-    }
-    return 'https://placehold.co/400x300?text=Dell+Laptop';
-  };
 
   // --- CART LOGIC ---
   const addToCart = (product, silent = false) => {
@@ -142,7 +138,7 @@ const Dell = () => {
         <div className="flex justify-between items-center mb-10">
           <div>
             <h1 className="text-2xl md:text-4xl font-black text-[#0F172A] uppercase italic tracking-tighter leading-none">
-              Dell Inspiron Series
+              Dell Elite Series
             </h1>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-2">Authorized Premium Inventory</p>
           </div>
@@ -152,7 +148,7 @@ const Dell = () => {
         </div>
 
         {selectedProduct ? (
-          /* --- Dell DETAIL VIEW (Laptop Layout) --- */
+          /* --- DELL DETAIL VIEW (Laptop Layout) --- */
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <button 
               onClick={() => setSelectedProduct(null)} 
@@ -200,12 +196,21 @@ const Dell = () => {
                     {selectedProduct.name}
                   </h2>
 
-                  <div className="flex items-center gap-3 mb-8">
-                    <div className="flex text-[#F4C430]">
-                      {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="#F4C430" />)}
-                    </div>
-                    <span className="text-xs font-black text-gray-400 italic">(4.9/5.0)</span>
-                  </div>
+                <div className="flex items-center gap-3 mb-8">
+  <div className="flex text-[#F4C430]">
+    {[...Array(5)].map((_, i) => (
+      <Star
+        key={i}
+        size={18}
+        fill={i < Math.floor(selectedProduct.averageRating || 0) ? "#F4C430" : "none"}
+        className={i < Math.floor(selectedProduct.averageRating || 0) ? "text-[#F4C430]" : "text-gray-300"}
+      />
+    ))}
+  </div>
+  <span className="text-xs font-black text-gray-400 italic">
+    ({selectedProduct.averageRating || 0}/5.0)
+  </span>
+</div>
 
                   <div className="mb-10 p-6 bg-[#F8F9FA] rounded-[24px] border-l-8 border-[#F4C430] shadow-sm">
                     <p className="text-[10px] font-black text-gray-400 uppercase mb-1 tracking-[0.2em]">Current Market Price</p>
@@ -251,7 +256,7 @@ const Dell = () => {
             </div>
           </div>
         ) : (
-          /* --- Dell LIST VIEW WITH SIDEBAR --- */
+          /* --- DELL LIST VIEW WITH SIDEBAR --- */
           <div className="flex flex-col lg:flex-row gap-8">
             
             {/* Improved Sidebar */}

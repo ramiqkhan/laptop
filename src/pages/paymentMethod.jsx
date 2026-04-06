@@ -61,19 +61,15 @@ function paymentMethod() {
             <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
               <div className="space-y-1">
                 <span className="text-slate-500 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">Bank Name</span>
-                <p className="font-semibold text-[#D4AF37] text-base md:text-lg tracking-wide">Meezan Bank Limited</p>
+                <p className="font-semibold text-[#D4AF37] text-base md:text-lg tracking-wide"> Faysal Bank</p>
               </div>
               <div className="space-y-1">
                 <span className="text-slate-500 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">Account Title</span>
-                <p className="font-semibold text-base md:text-lg tracking-wide">Scms Official Store</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-slate-500 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">Account Number</span>
-                <p className="font-mono text-base md:text-lg tracking-widest text-slate-200">0123-4567890123</p>
+                <p className="font-semibold text-base md:text-lg tracking-wide">IQRA TRADERS</p>
               </div>
               <div className="space-y-1">
                 <span className="text-slate-500 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">IBAN</span>
-                <p className="font-mono text-[11px] md:text-[13px] text-slate-300 break-all">PK00 MEZN 0000 0123 4567 8901</p>
+                <p className="font-mono text-[11px] md:text-[13px] text-slate-300 break-all">PK80FAYS3485499000004430</p>
               </div>
             </div>
           </div>
