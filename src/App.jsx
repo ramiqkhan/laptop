@@ -32,6 +32,7 @@ import Samsung from './pages/Samsung'
 
 import { CartProvider } from './context/CartContext'; 
 import AboutUs from './pages/About'
+import Contact from './pages/Contact'
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -59,6 +60,8 @@ function App() {
               <Route path="/laptops" element={<LaptopPage />} />
               <Route path="/gaming" element={<GamingLaptop />} />
                <Route path="/about" element={<AboutUs />} />
+              <Route path="/contact" element={<Contact />} />
+
               {/* Brands */}
               <Route path="/hp" element={<HP />} />
               <Route path="/dell" element={<Dell />} />

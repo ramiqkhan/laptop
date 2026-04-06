@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Heart, ShoppingCart, Target, Menu, X, ShoppingBag } from 'lucide-react'
+import { Heart, ShoppingCart, Target, Menu, X, ShoppingBag } from 'lucide-react'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom' 
 import logo from '../assets/logo/bglogo.png' 
 
@@ -36,7 +36,6 @@ const Drawer = ({ isOpen, onClose, title, children }) => (
 );
 
 function Navbar() {
-    // UPDATED: Added try-catch for safe parsing to prevent crash
     const [cartItems, setCartItems] = useState(() => {
         try {
             const saved = localStorage.getItem('globalCart');
@@ -48,14 +47,12 @@ function Navbar() {
     
     const [wishlistCount, setWishlistCount] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
     const [drawer, setDrawer] = useState({ isOpen: false, type: '' });
     const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
         const handleCartUpdate = (e) => {
-            // UPDATED: Force refresh data from localStorage to ensure sync
             try {
                 const saved = localStorage.getItem('globalCart');
                 const freshCart = saved ? JSON.parse(saved) : [];
@@ -83,15 +80,6 @@ function Navbar() {
         };
     }, []);
 
-    const handleSearch = (e) => {
-        if (e.key === 'Enter' || e.type === 'click') {
-            if (searchQuery.trim()) {
-                navigate(`/laptops?search=${encodeURIComponent(searchQuery)}`);
-                setIsMenuOpen(false);
-            }
-        }
-    };
-
     const openDrawer = (type) => setDrawer({ isOpen: true, type });
     const closeDrawer = () => setDrawer({ isOpen: false, type: '' });
     const handleBrowseClick = () => { closeDrawer(); navigate('/laptops'); };
@@ -102,7 +90,8 @@ function Navbar() {
         { name: 'Laptops', path: '/laptops' }, 
         { name: 'Gaming', path: '/gaming' }, 
         { name: 'Deals', path: '/deals' },
-         { name: 'About us', path: '/about' }
+        { name: 'About us', path: '/about' },
+        { name: 'Contact', path: '/contact' }
     ]
 
     return (
@@ -131,8 +120,6 @@ function Navbar() {
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-4">
-                      
-
                         <div className="flex items-center gap-3 md:gap-4">
                             <button onClick={() => openDrawer('Wishlist')} className="relative cursor-pointer group">
                                 <Heart className={`w-5 h-5 md:w-[22px] md:h-[22px] ${TEXT_DARK} group-hover:text-[#D4AF37]`} strokeWidth={1.8} />
@@ -152,20 +139,9 @@ function Navbar() {
                 </div>
             </div>
 
+            {/* Mobile Menu */}
             <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white ${isMenuOpen ? 'max-h-[400px] border-t border-slate-100 shadow-inner' : 'max-h-0'}`}>
                 <div className="p-4 space-y-4">
-                    <div className="relative sm:hidden pb-2">
-                        <input 
-                            type="text" 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={handleSearch}
-                            placeholder="Search..." 
-                            className="w-full pl-4 pr-10 py-2 bg-slate-50 text-[14px] rounded-xl border border-slate-100 focus:border-[#D4AF37] outline-none" 
-                        />
-                        <button onClick={handleSearch} className="absolute right-3 top-2.5 text-slate-400"><Search size={18} /></button>
-                    </div>
-
                     <div className="flex flex-col space-y-1">
                         {navLinks.map((link) => (
                             <NavLink 
@@ -212,4 +188,4 @@ function Navbar() {
     )
 }
 
-export default Navbar
+export default Navbar;

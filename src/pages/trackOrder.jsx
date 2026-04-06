@@ -132,7 +132,7 @@ function TrackOrder() {
             <div className="bg-slate-900 p-8 rounded-[2rem] text-white">
               <p className="text-[14px] md:text-[16px] font-normal text-slate-300 leading-relaxed">
                 In the event of delivery delays or tracking discrepancies, please reach out to our support desk via email at 
-                <span className="text-[#D4AF37] font-bold mx-1">support@scms.pk</span> 
+                <span className="text-[#D4AF37] font-bold mx-1">support@iqratraders.pk</span> 
                 We provide round-the-clock assistance for your convenience.
               </p>
             </div>
