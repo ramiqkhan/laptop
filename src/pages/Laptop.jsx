@@ -15,7 +15,7 @@ const [error, setError] = useState(null);
   const location = useLocation();
   const navigate = useNavigate(); 
   const itemsPerPage = 6;
- const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-orpin.vercel.app";
+ const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
   const API_URL = `${BASE_URL}/api/products`;
   // --- FIXED & SYNCED ADD TO CART ---
   const addToCart = (product, silent = false) => {

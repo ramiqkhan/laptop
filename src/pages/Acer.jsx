@@ -24,7 +24,7 @@ const Acer = () => {
 
   const navigate = useNavigate(); 
   const itemsPerPage = 6;
-const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-orpin.vercel.app";
+const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
   // --- API FETCHING ---
  useEffect(() => {
   const fetchAcerProducts = async () => {

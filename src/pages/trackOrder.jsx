@@ -28,7 +28,7 @@ function TrackOrder() {
 
   try {
     const res = await fetch(
-      `https://laptopbackend-orpin.vercel.app/api/orders/track?orderId=${encodeURIComponent(cleanOrderId)}&email=${encodeURIComponent(cleanEmail)}`
+      `https://laptopbackend-seven.vercel.app/api/orders/track?orderId=${encodeURIComponent(cleanOrderId)}&email=${encodeURIComponent(cleanEmail)}`
     );
 
     const data = await res.json();

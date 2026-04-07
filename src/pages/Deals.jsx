@@ -14,7 +14,7 @@ const Deals = () => {
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 12, mins: 45, secs: 30 });
 
-const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-orpin.vercel.app";
+const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
 
 
 // --- FETCH GAMING PRODUCTS ---
