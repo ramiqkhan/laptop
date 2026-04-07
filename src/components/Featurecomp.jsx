@@ -7,7 +7,7 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
   const [error, setError] = useState(null);
   const [currentImageIndexes, setCurrentImageIndexes] = useState({});
 
-const API_URL = `${import.meta.env.VITE_API_URL || "https://laptopbackend-eta.vercel.app"}/api/featured-products`;
+const API_URL = `${import.meta.env.VITE_API_URL || "https://laptopbackend-orpin.vercel.app"}/api/featured-products`;
 
 const fetchProducts = async () => {
   setLoading(true);

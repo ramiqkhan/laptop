@@ -69,7 +69,7 @@ const GamingLaptop = () => {
     RAM: true,
     GPU: true
   });
-const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-eta.vercel.app";
+const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-orpin.vercel.app";
 const API_URL = `${BASE_URL}/api/products`;
 
 // --- FETCH GAMING PRODUCTS ---
@@ -81,7 +81,7 @@ useEffect(() => {
       const searchQuery = params.get('search');
 
       // Updated backend URL
-      let url = 'https://laptopbackend-eta.vercel.app/api/products?category=gaming';
+      let url = 'https://laptopbackend-orpin.vercel.app/api/products?category=gaming';
       if (searchQuery) {
         url += `&search=${encodeURIComponent(searchQuery)}`;
       }
