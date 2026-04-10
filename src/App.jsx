@@ -33,6 +33,7 @@ import Samsung from './pages/Samsung'
 import { CartProvider } from './context/CartContext'; 
 import AboutUs from './pages/About'
 import Contact from './pages/Contact'
+import WhatsAppFloatingButton from './components/whatsapp'
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -89,7 +90,7 @@ function App() {
               <Route path="/payment-methods" element={<PaymentMethod />} />
             </Routes>
           </main>
-
+<WhatsAppFloatingButton />
           <Footer />
         </div>
       </Router>
