@@ -119,7 +119,15 @@ function Footer() {
                                     0322-9299951 / 0323-9900866
                                 </span>
                             </li>
-
+    {/* Email */}
+    <li className="flex items-center gap-3 group">
+        <div className="p-2 rounded-lg bg-slate-800/50 text-[#D4AF37]">
+            <Mail size={18} />
+        </div>
+        <span className="group-hover:text-white transition-colors">
+            iqratraders34@gmail.com
+        </span>
+    </li>
                             <li className="flex flex-col gap-4">
                                 <div className="flex items-start gap-3 group">
                                     <div className="p-2 rounded-lg bg-slate-800/50 text-[#D4AF37] shrink-0">
