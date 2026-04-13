@@ -34,7 +34,7 @@ function Contact() {
                 <div>
                   <h3 className="font-bold text-slate-800 text-[16px]">Direct Contact</h3>
                   <p className="text-slate-600 text-[15px] mt-1">0322-9299951</p>
-                  <p className="text-slate-600 text-[15px]">0323-9900866</p>
+            
                 </div>
               </div>
 

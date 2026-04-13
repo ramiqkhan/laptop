@@ -23,7 +23,7 @@ function warranty() {
             1. Warranty Duration
           </h2>
           <p className="text-[15px] md:text-[16px] font-normal text-slate-600 leading-relaxed">
-            Scms par milne wale tamam brand new laptops ke sath <strong>1-Year Official Local Warranty</strong> milti hai. Used ya refurbished machines ke liye hum 1-month ki service warranty provide karte hain taake aap be-fikr ho kar purchase kar sakein.
+            Scms par milne wale tamam brand new laptops ke sath <strong>1-Year Official Local Warranty</strong> milti hai. Used ya refurbished machines ke liye hum 2-month ki service warranty provide karte hain taake aap be-fikr ho kar purchase kar sakein.
           </p>
         </section>
 
