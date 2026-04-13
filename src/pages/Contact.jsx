@@ -63,7 +63,7 @@ function Contact() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800 text-[16px]">Official Email</h3>
-                  <p className="text-slate-600 text-[15px] mt-1">support@iqratraders.pk</p>
+                  <p className="text-slate-600 text-[15px] mt-1">iqratraders34@gmail.com</p>
                 </div>
               </div>
 
@@ -74,7 +74,7 @@ function Contact() {
                 <div>
                   <h3 className="font-bold text-slate-800 text-[16px]">Business Hours</h3>
                   <p className="text-slate-600 text-[15px] mt-1">Monday - Saturday</p>
-                  <p className="text-slate-600 text-[15px]">11:00 AM - 09:30 PM</p>
+                  <p className="text-slate-600 text-[15px]">12:00 AM - 09:00 PM</p>
                 </div>
               </div>
             </div>
@@ -98,8 +98,8 @@ function Contact() {
               <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                 <h4 className="font-bold text-slate-800 mb-1">HQ Address:</h4>
                 <p className="text-slate-600 text-[15px]">
-                  Plot no 83, Saghir Hussain United Center, <br />
-                  Saddar, Karachi, Pakistan.
+                 Plot no 83,saghir Hussain United center, Shop no F-34,<br />
+                    1st floor Near star city mall saddar mobile market Karachi.
                 </p>
               </div>
             </div>

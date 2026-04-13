@@ -39,7 +39,7 @@ const Cart = () => {
 
     // --- CALCULATIONS ---
     const subtotal = useMemo(() => cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0), [cartItems]);
-    const shipping = cartItems.length > 0 ? 3500 : 0;
+    const shipping = cartItems.length > 0 ? 350 : 0;
     const tax = cartItems.length > 0 ? (subtotal * 0.02) : 0;
     const total = subtotal + shipping + tax;
 
@@ -171,7 +171,7 @@ const Cart = () => {
             <div className="flex justify-between text-base items-center bg-blue-50/50 p-2 rounded-lg border border-blue-100">
                 <span className="font-bold text-blue-700 uppercase text-xs tracking-widest">Shipping Fee</span>
                 <span className="font-black text-blue-600">
-                    {shipping > 0 ? `PKR ${shipping.toLocaleString()}` : "FREE"}
+                    {shipping > 0 ? `PKR ${shipping.toLocaleString()}` : "350"}
                 </span>
             </div>
 
