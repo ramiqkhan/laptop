@@ -45,7 +45,7 @@ function Contact() {
                 <div>
                   <h3 className="font-bold text-slate-800 text-[16px]">Instant WhatsApp</h3>
                   <p className="text-slate-600 text-[15px] mt-1">923092794449</p>
-                  <p className="text-[12px] text-slate-400">Available: 11 AM - 9 PM</p>
+                  <p className="text-[12px] text-slate-400">Available: 12 AM - 9 PM</p>
                 </div>
               </div>
             </div>

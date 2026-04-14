@@ -37,7 +37,7 @@ function warranty() {
           </p>
           <ul className="list-disc ml-5 md:ml-6 space-y-3 text-slate-600 text-[14px] md:text-[16px]">
             <li><strong className="text-slate-700">Motherboard & Processor:</strong> Internal circuit faults aur performance issues.</li>
-            <li><strong className="text-slate-700">Display:</strong> Screen lines ya dead pixels (brand policy ke mutabiq).</li>
+            <li><strong className="text-slate-700">LED:</strong> No Warranty</li>
             <li><strong className="text-slate-700">Keyboard & Touchpad:</strong> Agar keys kaam karna chor dein.</li>
             <li><strong className="text-slate-700">Battery & Adapter:</strong> Charging issues aur original accessories ka fault.</li>
           </ul>

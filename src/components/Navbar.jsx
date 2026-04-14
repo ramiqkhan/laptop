@@ -106,7 +106,7 @@ function Navbar() {
                             <img 
                                 src={logo} 
                                 alt="Logo" 
-                                className="h-20 md:h-24 w-auto object-contain group-hover:scale-105 transition-transform -my-2" 
+                                className="h-26 md:h-26 w-auto object-contain group-hover:scale-105 transition-transform -my-2" 
                             />
                         </Link>
                     </div>
