@@ -116,7 +116,7 @@ function Footer() {
                                     <Phone size={18} />
                                 </div>
                                 <span className="group-hover:text-white transition-colors">
-                                    0322-9299951 / 0323-9900866
+                                    0322-9299951 
                                 </span>
                             </li>
     {/* Email */}
