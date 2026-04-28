@@ -93,9 +93,40 @@ function Navbar() {
         { name: 'About us', path: '/about' },
         { name: 'Contact', path: '/contact' }
     ]
-
+const bannerItems = [
+  "🛡️ 1 Year Official Warranty on Selected Laptops",
+  "💻 100% Genuine Products | No Refurbished Items",
+  "📞 24/7 Expert Support for Your Tech Needs"
+];
     return (
         <nav className="w-full bg-white shadow-sm border-b border-[#E6E6E6] font-['Poppins','Inter',sans-serif] sticky top-0 z-50">
+ 
+           <style>{`
+   @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+
+    .marquee-track {
+         display: flex;  
+        white-space: nowrap;
+        animation: marquee 25s linear infinite;
+        will-change: transform;
+    }
+`}</style>
+ <div className="w-full bg-slate-900 text-white py-2 overflow-hidden">
+    <div className="marquee-track">
+        {[...bannerItems, ...bannerItems, ...bannerItems, ...bannerItems,...bannerItems].map((item, index) => (
+            <span
+                key={index}
+                className="mx-8 text-sm font-medium flex-shrink-0"
+            >
+                {item}
+                <span className="ml-8 opacity-50">•</span>
+            </span>
+        ))}
+    </div>
+</div>
             <div className="px-4 md:px-6 py-1 md:py-1">
                 <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -106,7 +137,7 @@ function Navbar() {
                             <img 
                                 src={logo} 
                                 alt="Logo" 
-                                className="h-26 md:h-26 w-auto object-contain group-hover:scale-105 transition-transform -my-2" 
+                                className="h-40 md:h-40 w-auto object-contain group-hover:scale-105 transition-transform -my-2" 
                             />
                         </Link>
                     </div>
