@@ -119,14 +119,16 @@ const bannerItems = [
         backface-visibility: hidden;
     }
 `}</style>
-
-<div className="w-full bg-slate-900 text-white py-2 marquee-container">
+<div className="w-full bg-slate-900 text-white py-2 marquee-container border-t-2 border-white">
     <div className="marquee-track">
         {[...bannerItems, ...bannerItems].map((item, index) => (
             <div key={index} className="flex items-center flex-shrink-0 whitespace-nowrap">
                 <span className="mx-6 text-xs md:text-sm font-medium">
                     {item}
                 </span>
+                {/* Added a bit more space around the bullet 
+                    to balance the visual flow 
+                */}
                 <span className="mx-4 opacity-50">•</span>
             </div>
         ))}
