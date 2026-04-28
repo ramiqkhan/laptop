@@ -102,35 +102,35 @@ const bannerItems = [
         <nav className="w-full bg-white shadow-sm border-b border-[#E6E6E6] font-['Poppins','Inter',sans-serif] sticky top-0 z-50">
  
 <style>{`
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.marquee {
-  overflow: hidden;
-  width: 100%;
-}
-
-.marquee-inner {
-  display: flex;
-  width: max-content;
-  animation: marquee 25s linear infinite;
-}
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    .marquee-container {
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+    }
+    .marquee-track {
+        display: flex;
+        animation: marquee 25s linear infinite;
+        will-change: transform;
+        /* This prevents the "jumping" effect */
+        backface-visibility: hidden;
+    }
 `}</style>
 
-<div className="w-full bg-slate-900 text-white py-2 marquee">
-  <div className="marquee-inner">
-    {[...bannerItems, ...bannerItems].map((item, index) => (
-      <span
-        key={index}
-        className="mx-6 text-xs md:text-sm font-medium flex-shrink-0"
-      >
-        {item}
-        <span className="ml-6 opacity-50">•</span>
-      </span>
-    ))}
-  </div>
+<div className="w-full bg-slate-900 text-white py-2 marquee-container">
+    <div className="marquee-track">
+        {[...bannerItems, ...bannerItems].map((item, index) => (
+            <div key={index} className="flex items-center flex-shrink-0 whitespace-nowrap">
+                <span className="mx-6 text-xs md:text-sm font-medium">
+                    {item}
+                </span>
+                <span className="mx-4 opacity-50">•</span>
+            </div>
+        ))}
+    </div>
 </div>
             <div className="px-4 md:px-6 py-1 md:py-1">
                 <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
