@@ -134,13 +134,13 @@ const bannerItems = [
 </div>
             <div className="px-4 md:px-6 py-1 md:py-1">
                 <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center ">
                         <button className="lg:hidden p-1 text-slate-800 hover:bg-slate-100 rounded-md transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
 <Link 
   to="/" 
-  className="flex items-center sm:gap-3 md:gap-4 group shrink-0"
+  className="flex items-center sm:gap-3 md:gap-2 group shrink-0"
 >
 
   {/* LOGO */}
@@ -148,7 +148,7 @@ const bannerItems = [
     src={logo} 
     alt="IQRA Trader Logo" 
     className="
-      h-12 sm:h-16 md:h-20 lg:h-24
+      h-16 sm:h-20 md:h-25 lg:h-28
       w-auto object-contain
       transition-transform duration-300
       group-hover:scale-105
