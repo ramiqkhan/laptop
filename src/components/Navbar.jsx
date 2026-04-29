@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Heart, ShoppingCart, Target, Menu, X, ShoppingBag } from 'lucide-react'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom' 
-import logo from '../assets/logo/bglogo.png' 
+import logo from '../assets/logo/logo1.png' 
 
 const PRIMARY_COLOR = 'bg-[#D4AF37]'
 const TEXT_DARK = 'text-slate-800'
@@ -138,13 +138,55 @@ const bannerItems = [
                         <button className="lg:hidden p-1 text-slate-800 hover:bg-slate-100 rounded-md transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
-                        <Link to="/" className="flex items-center group shrink-0">
-                            <img 
-                                src={logo} 
-                                alt="Logo" 
-                                className="h-36 md:h-36 w-auto object-contain group-hover:scale-105 transition-transform -my-2" 
-                            />
-                        </Link>
+<Link 
+  to="/" 
+  className="flex items-center sm:gap-3 md:gap-4 group shrink-0"
+>
+
+  {/* LOGO */}
+  <img 
+    src={logo} 
+    alt="IQRA Trader Logo" 
+    className="
+      h-12 sm:h-16 md:h-20 lg:h-24
+      w-auto object-contain
+      transition-transform duration-300
+      group-hover:scale-105
+    "
+  />
+
+  {/* Divider */}
+  <div className="hidden sm:block w-[2px] h-6 sm:h-8 md:h-10 bg-gray-300"></div>
+
+  {/* TEXT */}
+  <div className="flex flex-col leading-tight">
+
+    {/* Brand Name */}
+    <h1 className="
+      text-sm sm:text-base md:text-lg lg:text-2xl
+      font-extrabold tracking-wide whitespace-nowrap
+    ">
+      <span className="text-[#0F172A]">IQRA</span>
+  <span className="
+  bg-gradient-to-r 
+  from-[#8C5A14] via-[#C9972E] to-[#F2C94C]
+  bg-clip-text text-transparent
+">
+  TRADER
+</span>
+    </h1>
+
+    {/* Tagline */}
+ <p className="
+  text-[7px] sm:text-[10px] md:text-xs lg:text-sm
+  text-gray-500 font-medium tracking-wide
+  leading-tight
+">
+  Leading Trading Platform in Pakistan
+</p>
+
+  </div>
+</Link>
                     </div>
 
                     <div className="hidden lg:flex flex-1 items-center justify-center gap-8">
