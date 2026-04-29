@@ -89,6 +89,7 @@ function Navbar() {
         { name: 'Home', path: '/' },
         { name: 'Laptops', path: '/laptops' }, 
         { name: 'Gaming', path: '/gaming' }, 
+        { name: 'Work Station', path: '/workstation' },
         { name: 'Deals', path: '/deals' },
         { name: 'About us', path: '/about' },
         { name: 'Contact', path: '/contact' }
