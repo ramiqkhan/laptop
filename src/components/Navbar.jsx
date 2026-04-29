@@ -148,7 +148,7 @@ const bannerItems = [
     src={logo} 
     alt="IQRA Trader Logo" 
     className="
-      h-16 sm:h-20 md:h-25 lg:h-28
+      h-17 sm:h-20 md:h-25 lg:h-28
       w-auto object-contain
       transition-transform duration-300
       group-hover:scale-105
