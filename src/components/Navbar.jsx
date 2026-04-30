@@ -172,7 +172,7 @@ const bannerItems = [
   from-[#8C5A14] via-[#C9972E] to-[#F2C94C]
   bg-clip-text text-transparent
 ">
-  TRADER
+  TRADERS
 </span>
     </h1>
 
