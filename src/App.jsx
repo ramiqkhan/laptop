@@ -35,6 +35,7 @@ import AboutUs from './pages/About'
 import Contact from './pages/Contact'
 import WhatsAppFloatingButton from './components/whatsapp'
 import WorkStation from './pages/WorkStation'
+import SearchPage from './pages/SearchPage'
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -89,6 +90,12 @@ function App() {
               <Route path="/return-policy" element={<ReturnPolicy />} />
               <Route path="/warranty" element={<Warranty />} />
               <Route path="/payment-methods" element={<PaymentMethod />} />
+
+
+
+
+                <Route path="/search" element={<SearchPage />} />
+
             </Routes>
           </main>
 <WhatsAppFloatingButton />

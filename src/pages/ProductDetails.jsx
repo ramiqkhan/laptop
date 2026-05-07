@@ -1,183 +1,248 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Heart, CheckCircle2 } from 'lucide-react';
-
-// Images Import
-import lap1 from '../assets/imgs/brand1.png';
-import lap2 from '../assets/imgs/brand2.png';
-
-const ALL_PRODUCTS = [
-    { id: 1, name: "HP Victus 15", price: 185000, rating: 5, reviews: 450, img: lap1, specs: ["Premium aluminum chassis", "Advanced cooling system", "Wi-Fi 6E connectivity", "RGB backlit keyboard", "Thunderbolt 4 support", "Dolby Atmos audio"], technical: { processor: "Intel Core i9-13900HX", ram: "32GB DDR5", storage: "1TB NVMe SSD", graphics: "NVIDIA RTX 4070", display: "16\" QHD 240Hz", os: "Windows 11 Pro" } },
-    { id: 2, name: "Dell G15 Gaming", price: 210000, rating: 4, reviews: 120, img: lap2, specs: ["Premium aluminum chassis", "Advanced cooling system", "Wi-Fi 6E connectivity", "RGB backlit keyboard", "Thunderbolt 4 support", "Dolby Atmos audio"], technical: { processor: "Intel Core i7-13650HX", ram: "16GB DDR5", storage: "512GB NVMe SSD", graphics: "NVIDIA RTX 4050", display: "15.6\" FHD 165Hz", os: "Windows 11 Home" } },
-    { id: 3, name: "Lenovo Legion 5", price: 325000, rating: 5, reviews: 89, img: lap1, specs: ["Premium aluminum chassis", "Advanced cooling system", "Wi-Fi 6E connectivity", "RGB backlit keyboard", "Thunderbolt 4 support", "Dolby Atmos audio"], technical: { processor: "AMD Ryzen 7 7745HX", ram: "16GB DDR5", storage: "1TB NVMe SSD", graphics: "NVIDIA RTX 4060", display: "16\" QHD 165Hz", os: "Windows 11 Pro" } },
-    { id: 4, name: "Asus ROG Zephyrus", price: 450000, rating: 4, reviews: 310, img: lap2, specs: ["Premium aluminum chassis", "Advanced cooling system", "Wi-Fi 6E connectivity", "RGB backlit keyboard", "Thunderbolt 4 support", "Dolby Atmos audio"], technical: { processor: "Intel Core i9-13900H", ram: "32GB DDR5", storage: "1TB NVMe SSD", graphics: "NVIDIA RTX 4070", display: "14\" QHD 165Hz", os: "Windows 11 Pro" } },
-    { id: 5, name: "Apple MacBook M2", price: 380000, rating: 5, reviews: 520, img: lap1, specs: ["Premium aluminum chassis", "Advanced cooling system", "Wi-Fi 6E connectivity", "RGB backlit keyboard", "Thunderbolt 4 support", "Dolby Atmos audio"], technical: { processor: "Apple M2 Chip", ram: "16GB Unified", storage: "512GB SSD", graphics: "10-Core GPU", display: "13.6\" Liquid Retina", os: "macOS Ventura" } },
-    { id: 6, name: "Acer Nitro 5", price: 165000, rating: 3, reviews: 95, img: lap2, specs: ["Premium aluminum chassis", "Advanced cooling system", "Wi-Fi 6E connectivity", "RGB backlit keyboard", "Thunderbolt 4 support", "Dolby Atmos audio"], technical: { processor: "Intel Core i5-12500H", ram: "8GB DDR4", storage: "512GB SSD", graphics: "NVIDIA RTX 3050", display: "15.6\" FHD 144Hz", os: "Windows 11 Home" } },
-];
+import React, { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { Heart, CheckCircle2 } from "lucide-react";
+import { ShoppingCart, CreditCard } from "lucide-react";
+import {
+  Cpu, Zap, Monitor, HardDrive, Box, ShieldCheck
+} from "lucide-react";
+import lap1 from "../assets/imgs/brand1.png";
 
 const ProductDetails = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [isLiked, setIsLiked] = useState(false);
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-    const product = useMemo(() => {
-        return ALL_PRODUCTS.find(p => p.id === parseInt(id)) || ALL_PRODUCTS[0];
-    }, [id]);
+  const [product, setProduct] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [isLiked, setIsLiked] = useState(false);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        setIsLiked(false);
-    }, [id]);
+//   const API = "https://laptopbackend-seven.vercel.app";
 
-    const handleWishlist = () => {
-        const newStatus = !isLiked;
-        setIsLiked(newStatus);
-        window.dispatchEvent(new CustomEvent('wishlistUpdated', { detail: { increment: newStatus } }));
-    };
+const addToCart = (product, silent = false) => {
+  if (!product) return;
 
-    const handleAddToCart = () => {
-        window.dispatchEvent(new CustomEvent('cartUpdated', { detail: product }));
-    };
+  try {
+    const savedCart = localStorage.getItem('globalCart');
+    let currentCart = savedCart ? JSON.parse(savedCart) : [];
 
-    const handleBuyNow = () => {
-        handleAddToCart();
-        navigate('/cart');
-    };
+    const productId = product._id || product.id;
 
-    return (
-        <div className="bg-[#F8F9FA] min-h-screen font-sans pb-10 md:pb-20">
-            <div className="max-w-[1300px] mx-auto px-4 sm:px-6 py-4 md:py-6">
+    // FIX: image handling (NO renderImage needed)
+    const productImage = product.images?.[0] || product.img || "";
 
-                {/* Header/Breadcrumbs */}
-                <div className="flex flex-row justify-between items-center mb-6 md:mb-8 border-b border-gray-100 pb-4">
-                    <h1 className="text-xl md:text-2xl font-bold text-gray-900">Gaming</h1>
-                    <nav className="text-[9px] md:text-[11px] text-gray-400 uppercase tracking-widest flex items-center gap-1">
-                        <Link to="/" className="hover:text-black">Home</Link> /
-                        <Link to="/gaming" className="hover:text-black">Gaming</Link> /
-                        <span className="text-gray-900 font-bold truncate max-w-[80px] md:max-w-none">Details</span>
-                    </nav>
-                </div>
+    const existingItem = currentCart.find(item => item.id === productId);
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 items-start">
-                    {/* LEFT: Image Gallery */}
-                    <div className="lg:sticky lg:top-6 space-y-4">
-                        <div className="bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 flex items-center justify-center border border-gray-100 min-h-[300px] md:min-h-[450px] shadow-sm">
-                            <img src={product.img} alt={product.name} className="max-h-[250px] md:max-h-[350px] object-contain hover:scale-105 transition-transform duration-300" />
-                        </div>
-                        <div className="flex gap-2 md:gap-3 justify-start overflow-x-auto pb-2 no-scrollbar">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="min-w-[70px] md:min-w-[80px] h-[70px] md:h-[80px] bg-white border border-gray-200 rounded-xl p-2 flex items-center justify-center cursor-pointer hover:border-blue-500 transition-all shadow-sm">
-                                    <img src={product.img} alt="thumbnail" className="max-h-full object-contain opacity-70" />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+    if (existingItem) {
+      currentCart = currentCart.map(item =>
+        item.id === productId
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      );
+    } else {
+      currentCart.push({
+        id: productId,
+        name: product.name,
+        price: Number(product.price) || 0,
+        img: productImage,
+        quantity: 1,
+        brand: product.brand || "Premium",
+        processor: product.processor,
+        ram: product.ram,
+        storage: product.storage
+      });
+    }
 
-                    {/* RIGHT: Product Details */}
-                    <div className="flex flex-col space-y-4 md:space-y-6 pt-2 md:pt-4">
-                        <div className="flex justify-between items-start">
-                            <div className="space-y-1 md:space-y-2">
-                                <h2 className="text-2xl md:text-4xl font-bold text-gray-900 tracking-tight leading-tight">{product.name}</h2>
-                                <div className="flex items-center gap-2 md:gap-3">
-                                    <div className="flex text-yellow-400 text-xs md:text-sm">
-                                        {"★".repeat(4)}<span className="text-gray-200">★</span>
-                                    </div>
-                                    <span className="text-gray-400 text-[10px] md:text-xs font-medium">4.5/5 - {product.reviews} Reviews</span>
-                                </div>
-                            </div>
-                            <button 
-                                onClick={handleWishlist}
-                                className={`p-2.5 md:p-3 rounded-full transition-all shadow-sm ${isLiked ? 'bg-red-50 text-red-500' : 'bg-white text-gray-400 hover:text-red-400'}`}
-                            >
-                                <Heart fill={isLiked ? "currentColor" : "none"} size={20} className="md:w-6 md:h-6" />
-                            </button>
-                        </div>
+    localStorage.setItem('globalCart', JSON.stringify(currentCart));
 
-                        <hr className="border-gray-100" />
-
-                        {/* Specs List */}
-                        <div className="space-y-2 md:space-y-3">
-                            {product.specs.map((spec, index) => (
-                                <div key={index} className="flex items-center gap-2 md:gap-3 text-gray-600 text-xs md:text-sm">
-                                    <CheckCircle2 size={16} className="text-blue-500 shrink-0" />
-                                    <span className="leading-tight">{spec}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="pt-2 md:pt-4">
-                            <p className="text-gray-400 text-[10px] md:text-sm font-medium mb-1 uppercase tracking-wider">Price</p>
-                            <span className="text-3xl md:text-4xl font-bold text-gray-900">PKR {product.price.toLocaleString()}</span>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-2 md:pt-4">
-                            <button 
-                                onClick={handleAddToCart} 
-                                className="w-full sm:flex-1 py-3.5 md:py-4 bg-[#1D58EF] text-white text-sm md:text-base font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg active:scale-95"
-                            >
-                                Add to Cart
-                            </button>
-                            <button 
-                                onClick={handleBuyNow}
-                                className="w-full sm:flex-1 py-3.5 md:py-4 bg-gradient-to-b from-[#F9C341] to-[#E2A11B] text-slate-900 text-sm md:text-base font-bold rounded-xl hover:brightness-105 transition-all shadow-lg active:scale-95"
-                            >
-                                Buy Now
-                            </button>
-                        </div>
-
-                        {/* Trust Badges */}
-                        <div className="grid grid-cols-3 gap-2 md:gap-3 pt-4 md:pt-6">
-                            {[
-                                { icon: "📦", label: "Sourced" },
-                                { icon: "🛡️", label: "Guarantee" },
-                                { icon: "🚚", label: "Free Shipping" }
-                            ].map((badge, idx) => (
-                                <div key={idx} className="bg-white p-2.5 md:p-4 rounded-xl flex flex-col items-center text-center space-y-1 shadow-sm border border-gray-50">
-                                    <span className="text-lg md:text-xl">{badge.icon}</span>
-                                    <p className="text-[8px] md:text-[10px] font-bold text-gray-800 leading-tight uppercase">{badge.label}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* SPECIFICATIONS TABLE */}
-                <div className="mt-12 md:mt-16 bg-white rounded-2xl md:rounded-3xl border border-gray-100 overflow-hidden shadow-xl">
-                    <div className="inline-block bg-blue-50 px-6 md:px-8 py-3 md:py-4 rounded-br-2xl md:rounded-br-3xl">
-                        <h3 className="text-lg md:text-xl font-bold text-blue-900">Technical Specs</h3>
-                    </div>
-                    
-                    <div className="p-5 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-x-10 md:gap-x-20 gap-y-4 md:gap-y-6 text-xs md:text-sm">
-                        {Object.entries(product.technical).map(([key, value]) => (
-                            <div key={key} className="flex justify-between border-b border-gray-50 pb-2 md:pb-3">
-                                <span className="text-gray-500 font-medium capitalize">{key}:</span>
-                                <span className="text-gray-900 font-semibold text-right pl-4">{value}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* RELATED PRODUCTS */}
-                <div className="mt-12 md:mt-20">
-                    <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8 flex items-center gap-2">
-                        <span className="w-1.5 md:w-2 h-6 md:h-8 bg-blue-500 rounded-full"></span>
-                        Customers also viewed
-                    </h2>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                        {ALL_PRODUCTS.filter(p => p.id !== product.id).slice(0, 4).map((item) => (
-                            <Link to={`/product/${item.id}`} key={item.id} className="bg-white p-3 md:p-6 rounded-xl md:rounded-2xl border border-gray-100 hover:shadow-xl transition-all group">
-                                <div className="h-24 md:h-32 flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-                                    <img src={item.img} alt={item.name} className="max-h-full object-contain" />
-                                </div>
-                                <h3 className="font-bold text-gray-800 text-[10px] md:text-sm truncate">{item.name}</h3>
-                                <p className="text-blue-600 font-bold mt-1 text-[10px] md:text-sm">PKR {item.price.toLocaleString()}</p>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
+    // FIX: send full product
+    window.dispatchEvent(
+      new CustomEvent('cartUpdated', { detail: product })
     );
+
+    if (!silent) alert(`${product.name} added to cart!`);
+
+  } catch (e) {
+    console.error("Cart saving error:", e);
+  }
+};
+
+const handleBuyNow = (product) => {
+  addToCart(product, true);
+  navigate('/cart');
+};
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/products/${id}`);
+        const data = await res.json();
+        setProduct(data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchProduct();
+    window.scrollTo(0, 0);
+    setIsLiked(false);
+  }, [id]);
+
+  useEffect(() => {
+    const fetchRelated = async () => {
+      try {
+        const res = await fetch(`${API}/api/products`);
+        const data = await res.json();
+
+        const filtered = data
+          .filter((p) => p._id !== id)
+          .slice(0, 4);
+
+        setRelated(filtered);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchRelated();
+  }, [id]);
+
+  if (!product) {
+    return (
+      <div className="flex justify-center items-center h-screen text-lg">
+        Loading product...
+      </div>
+    );
+  }
+
+  const handleWishlist = () => {
+    setIsLiked(!isLiked);
+  };
+
+  return (
+    <div className="bg-[#F8F9FA] min-h-screen pb-10">
+      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+
+        {/* Breadcrumb */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6 border-b pb-3">
+          {/* <h1 className="text-xl sm:text-2xl font-bold">
+            {product.category || "Product"}
+          </h1> */}
+
+          <nav className="text-[11px] sm:text-xs text-gray-400">
+            <Link to="/">Home</Link> / <span>{product.name}</span>
+          </nav>
+        </div>
+
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+
+          {/* IMAGE */}
+          <div className="bg-white p-6 sm:p-10 rounded-2xl flex justify-center items-center">
+            <img
+              src={product.images?.[0] || lap1}
+              alt={product.name}
+              className="max-h-[220px] sm:max-h-[350px] object-contain"
+            />
+          </div>
+
+          {/* DETAILS */}
+          <div className="space-y-5">
+
+            <p className="text-gray-500 text-sm sm:text-base">
+              {product.brand} 
+            </p>
+
+            {/* PRICE */}
+            <div className="mb-6 sm:mb-8 p-4 bg-[#F8F9FA] rounded-2xl border-l-4 border-[#F4C430]">
+              <p className="text-xs font-bold text-gray-400 uppercase mb-1 tracking-widest">
+                Price
+              </p>
+
+              <span className="text-3xl sm:text-4xl font-black text-[#0F172A]">
+                PKR {product?.price?.toLocaleString()}
+              </span>
+            </div>
+
+            {/* SPECS */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-6 sm:mb-8">
+              {[
+                { label: "Processor", value: product?.processor, icon: <Cpu size={16} /> },
+                { label: "RAM", value: product?.ram, icon: <Zap size={16} /> },
+                { label: "Graphics", value: product?.gpu, icon: <Monitor size={16} /> },
+                { label: "Storage", value: product?.storage, icon: <HardDrive size={16} /> },
+                { label: "Display", value: product?.display || "Full HD", icon: <Box size={16} /> },
+                { label: "OS", value: product?.os || "Windows 11", icon: <ShieldCheck size={16} /> },
+              ].map((spec, index) => (
+                <div
+                  key={index}
+                  className="p-3 bg-white rounded-xl border shadow-sm hover:border-[#F4C430] transition"
+                >
+                  <div className="mb-1">{spec.icon}</div>
+                  <p className="text-[9px] uppercase font-black text-gray-400">
+                    {spec.label}
+                  </p>
+                  <p className="text-[11px] font-bold text-slate-800 truncate">
+                    {spec.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* FEATURES */}
+       
+
+            {/* BUTTONS */}
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+
+              <button
+                onClick={() => addToCart(product)}
+                className="flex-1 py-4 sm:py-5 bg-[#0F172A] text-white font-black rounded-2xl text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+              >
+                <ShoppingCart size={18} /> Add To Cart
+              </button>
+
+              <button
+                onClick={() => handleBuyNow(product)}
+                className="flex-1 py-4 sm:py-5 bg-gradient-to-r from-[#F4C430] to-[#d6a11e] text-[#0F172A] font-black rounded-2xl text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+              >
+                <CreditCard size={18} /> Buy Now
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+        {/* RELATED */}
+        <div className="mt-12 sm:mt-16">
+          <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-5">
+            Related Products
+          </h2>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {related.map((item) => (
+              <Link
+                to={`/product/${item._id}`}
+                key={item._id}
+                className="bg-white p-3 sm:p-4 rounded-xl border hover:shadow"
+              >
+                <img
+                  src={item.images?.[0] || lap1}
+                  className="h-20 sm:h-28 mx-auto object-contain"
+                />
+                <h3 className="text-xs sm:text-sm font-bold mt-2 truncate">
+                  {item.name}
+                </h3>
+                <p className="text-blue-600 font-bold text-xs sm:text-sm">
+                  PKR {item.price?.toLocaleString()}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
 };
 
 export default ProductDetails;

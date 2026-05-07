@@ -69,7 +69,7 @@ function paymentMethod() {
               </div>
               <div className="space-y-1">
                 <span className="text-slate-500 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">IBAN</span>
-                <p className="font-mono text-[11px] md:text-[13px] text-slate-300 break-all">PK80FAYS3485499000004430</p>
+                {/* <p className="font-mono text-[11px] md:text-[13px] text-slate-300 break-all">PK80FAYS3485499000004430</p> */}
               </div>
             </div>
           </div>

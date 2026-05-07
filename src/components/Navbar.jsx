@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Heart, ShoppingCart, Target, Menu, X, ShoppingBag } from 'lucide-react'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom' 
 import logo from '../assets/logo/logo1.png' 
+import SearchBar from './Searchbar'
 
 const PRIMARY_COLOR = 'bg-[#D4AF37]'
 const TEXT_DARK = 'text-slate-800'
@@ -134,10 +135,13 @@ const bannerItems = [
 </div>
             <div className="px-4 md:px-6 py-1 md:py-1">
                 <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
-                    <div className="flex items-center ">
-                        <button className="lg:hidden p-1 text-slate-800 hover:bg-slate-100 rounded-md transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
+                 <div className="flex items-center gap-2">
+                         <button
+        className="lg:hidden p-2 text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+    >
+        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+    </button>
 <Link 
   to="/" 
   className="flex items-center sm:gap-3 md:gap-2 group shrink-0"
@@ -187,6 +191,7 @@ const bannerItems = [
 
   </div>
 </Link>
+ 
                     </div>
 
                     <div className="hidden lg:flex flex-1 items-center justify-center gap-8">
@@ -197,29 +202,44 @@ const bannerItems = [
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-2 md:gap-4">
-                        <div className="flex items-center gap-3 md:gap-4">
-                            <button onClick={() => openDrawer('Wishlist')} className="relative cursor-pointer group">
-                                <Heart className={`w-5 h-5 md:w-[22px] md:h-[22px] ${TEXT_DARK} group-hover:text-[#D4AF37]`} strokeWidth={1.8} />
-                                {wishlistCount > 0 && <span className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] rounded-full flex items-center justify-center text-[8px] font-bold text-white bg-red-500 ring-2 ring-white">{wishlistCount}</span>}
-                            </button>
-                            
-                            <button onClick={handleCompareClick} className="relative cursor-pointer group">
-                                <Target className={`w-5 h-5 md:w-[22px] md:h-[22px] ${TEXT_DARK} group-hover:text-[#D4AF37]`} strokeWidth={1.8} />
-                            </button>
-                            
-                            <button onClick={() => openDrawer('Your Cart')} className="relative cursor-pointer group">
-                                <ShoppingCart className={`w-5 h-5 md:w-[22px] md:h-[22px] ${TEXT_DARK} group-hover:text-[#D4AF37]`} strokeWidth={1.8} />
-                                <span className={`absolute -top-1 -right-1.5 min-w-[14px] h-[14px] px-1 rounded-full flex items-center justify-center text-[8px] font-bold text-white ${PRIMARY_COLOR} ring-2 ring-white`}>{cartItems?.length || 0}</span>
-                            </button>
-                        </div>
-                    </div>
+                 <div className="flex items-center gap-2 md:gap-4">
+
+    <div className="flex items-center gap-2 md:gap-4">
+
+        {/* Search (shrinks on mobile, expands on md+) */}
+       <div className="hidden lg:flex items-center">
+    <SearchBar />
+</div>
+
+        {/* Compare */}
+        <button onClick={handleCompareClick} className="relative cursor-pointer group">
+            <Target className={`w-5 h-5 md:w-[22px] md:h-[22px] ${TEXT_DARK} group-hover:text-[#D4AF37]`} strokeWidth={1.8} />
+        </button>
+
+        {/* Cart */}
+        <button
+            onClick={() => openDrawer('Your Cart')}
+            className="relative cursor-pointer group"
+        >
+            <ShoppingCart className={`w-5 h-5 md:w-[22px] md:h-[22px] ${TEXT_DARK} group-hover:text-[#D4AF37]`} strokeWidth={1.8} />
+            
+            <span className={`absolute -top-1 -right-1.5 min-w-[14px] h-[14px] px-1 rounded-full flex items-center justify-center text-[8px] font-bold text-white ${PRIMARY_COLOR} ring-2 ring-white`}>
+                {cartItems?.length || 0}
+            </span>
+        </button>
+
+    </div>
+</div>
                 </div>
             </div>
 
             {/* Mobile Menu */}
             <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white ${isMenuOpen ? 'max-h-[400px] border-t border-slate-100 shadow-inner' : 'max-h-0'}`}>
                 <div className="p-4 space-y-4">
+                       {/* ADD THIS 👇 */}
+        <div className="mb-2">
+            <SearchBar />
+        </div>
                     <div className="flex flex-col space-y-1">
                         {navLinks.map((link) => (
                             <NavLink 
