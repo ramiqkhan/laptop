@@ -61,15 +61,15 @@ function paymentMethod() {
             <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
               <div className="space-y-1">
                 <span className="text-slate-500 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">Bank Name</span>
-                <p className="font-semibold text-[#D4AF37] text-base md:text-lg tracking-wide"> Faysal Bank</p>
+                <p className="font-semibold text-[#D4AF37] text-base md:text-lg tracking-wide"> BANK AL HABIB LIMITED </p>
               </div>
               <div className="space-y-1">
                 <span className="text-slate-500 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">Account Title</span>
                 <p className="font-semibold text-base md:text-lg tracking-wide">IQRA TRADERS</p>
               </div>
               <div className="space-y-1">
-                <span className="text-slate-500 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">IBAN</span>
-                {/* <p className="font-mono text-[11px] md:text-[13px] text-slate-300 break-all">PK80FAYS3485499000004430</p> */}
+                <span className="text-slate-500 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold">ACCOUNT NO</span>
+                <p className="font-mono text-[11px] md:text-[13px] text-slate-300 break-all">50560081001266012</p>
               </div>
             </div>
           </div>
