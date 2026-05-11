@@ -137,7 +137,7 @@ const bannerItems = [
                 <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
                  <div className="flex items-center gap-2">
                          <button
-        className="lg:hidden p-2 text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
+        className="xl:hidden p-2 text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
     >
         {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -167,34 +167,37 @@ const bannerItems = [
 
     {/* Brand Name */}
     <h1 className="
-      text-sm sm:text-base md:text-lg lg:text-2xl
+      /* Reduced from text-sm to text-[10px] for tiny mobile screens */
+      text-[11px] sm:text-sm md:text-lg lg:text-2xl 
       font-extrabold tracking-wide whitespace-nowrap
     ">
       <span className="text-[#0F172A]">IQRA</span>
-  <span className="
-  bg-gradient-to-r 
-  from-[#8C5A14] via-[#C9972E] to-[#F2C94C]
-  bg-clip-text text-transparent
-">
-  TRADERS
-</span>
+      <span className="
+        bg-gradient-to-r 
+        from-[#8C5A14] via-[#C9972E] to-[#F2C94C]
+        bg-clip-text text-transparent
+        ml-1
+      ">
+        TRADERS
+      </span>
     </h1>
 
     {/* Tagline */}
- <p className="
-  text-[7px] sm:text-[10px] md:text-xs lg:text-sm
-  text-gray-500 font-medium tracking-wide
-  leading-tight
-">
-  Leading Trading Platform in Pakistan
+<p className="
+      /* Changed from text-[7px] to text-[5.5px] for ultra-mobile */
+      text-[5.5px] xs:text-[7px] sm:text-[9px] md:text-xs lg:text-sm
+      text-gray-500 font-medium tracking-tight
+      leading-[1] mt-0.5
+    ">
+      Leading Trading Platform in Pakistan
 </p>
 
-  </div>
+</div>
 </Link>
  
                     </div>
 
-                    <div className="hidden lg:flex flex-1 items-center justify-center gap-8">
+                    <div className="hidden xl:flex flex-1 items-center justify-center gap-5">
                         {navLinks.map((link) => (
                             <NavLink key={link.name} to={link.path} className={({ isActive }) => `text-[15px] transition-all duration-300 relative pb-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#D4AF37] after:transition-all hover:after:w-full ${isActive ? 'text-[#D4AF37] font-semibold after:w-full' : `font-medium ${TEXT_DARK} hover:text-[#D4AF37]`}`}>
                                 {link.name}
@@ -202,12 +205,12 @@ const bannerItems = [
                         ))}
                     </div>
 
-                 <div className="flex items-center gap-2 md:gap-4">
+                 <div className="flex items-center gap-4 md:gap-4">
 
-    <div className="flex items-center gap-2 md:gap-4">
+    <div className="flex items-center gap-1 md:gap-4">
 
         {/* Search (shrinks on mobile, expands on md+) */}
-       <div className="hidden lg:flex items-center">
+       <div className=" lg:flex items-center pl-10">
     <SearchBar />
 </div>
 
@@ -234,12 +237,10 @@ const bannerItems = [
             </div>
 
             {/* Mobile Menu */}
-            <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white ${isMenuOpen ? 'max-h-[400px] border-t border-slate-100 shadow-inner' : 'max-h-0'}`}>
+            <div className={`xl:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white ${isMenuOpen ? 'max-h-[400px] border-t border-slate-100 shadow-inner' : 'max-h-0'}`}>
                 <div className="p-4 space-y-4">
                        {/* ADD THIS 👇 */}
-        <div className="mb-2">
-            <SearchBar />
-        </div>
+        
                     <div className="flex flex-col space-y-1">
                         {navLinks.map((link) => (
                             <NavLink 
