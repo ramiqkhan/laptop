@@ -426,7 +426,51 @@ const renderImage = (product, index = 0) => {
     </div>
   ))}
 </div>
+           {totalPages > 1 && (
+  <div className="mt-8 flex justify-center items-center flex-wrap gap-2 md:gap-3 px-2">
 
+    {Array.from({ length: totalPages }, (_, i) => i + 1)
+      .filter((page) => {
+        return (
+          page === 1 ||
+          page === totalPages ||
+          Math.abs(page - currentPage) <= 1
+        );
+      })
+      .map((page, index, arr) => {
+        const prevPage = arr[index - 1];
+
+        return (
+          <React.Fragment key={page}>
+            
+            {/* DOTS */}
+            {prevPage && page - prevPage > 1 && (
+              <span className="px-2 text-gray-400">...</span>
+            )}
+
+            {/* BUTTON */}
+            <button
+              onClick={() => {
+                setCurrentPage(page);
+                window.scrollTo(0, 0);
+              }}
+              className={`
+                min-w-[32px] h-8 px-2 text-sm md:w-10 md:h-10 md:text-base
+                rounded-md md:rounded-lg font-semibold transition-all shadow-sm
+                ${currentPage === page
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-white border border-[#E6E6E6] text-gray-600 hover:border-blue-600'}
+              `}
+            >
+              {page}
+            </button>
+
+          </React.Fragment>
+        );
+      })}
+
+  </div>
+)}
               
               </>
             )}
