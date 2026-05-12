@@ -427,13 +427,7 @@ const renderImage = (product, index = 0) => {
   ))}
 </div>
 
-                {totalPages > 1 && (
-                  <div className="mt-12 flex justify-center items-center gap-3">
-                    {[...Array(totalPages)].map((_, i) => (
-                      <button key={i} onClick={() => { setCurrentPage(i + 1); window.scrollTo(0,0); }} className={`w-10 h-10 rounded-lg font-bold transition-all shadow-sm ${currentPage === i + 1 ? 'bg-slate-900 text-white' : 'bg-white border border-[#E6E6E6] text-gray-600 hover:border-blue-600'}`}>{i + 1}</button>
-                    ))}
-                  </div>
-                )}
+              
               </>
             )}
           </main>
