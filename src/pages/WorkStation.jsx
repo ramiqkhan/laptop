@@ -105,14 +105,25 @@ const renderImage = (product, index = 0) => {
 return product.images[index].url || product.images[index];  
 };
 
-  const filteredAndSortedProducts = useMemo(() => {
-   let result = [...products];
+const filteredAndSortedProducts = useMemo(() => {
+    let result = [...products];
 
+    // RAM Filter
+    if (selectedFilters.RAM.length > 0) {
+      result = result.filter(p => selectedFilters.RAM.includes(p.ram));
+    }
 
-    if (selectedFilters.RAM.length > 0) result = result.filter(p => selectedFilters.RAM.includes(p.ram));
-if (selectedFilters.GPU.length > 0) {
-  result = result.filter(p => selectedFilters.GPU.includes(p.graphics));
-}
+    // ✅ NAVY/GOLD THEME SENSITIVE GPU FILTER (UPDATED HERE)
+    if (selectedFilters.GPU.length > 0) {
+      result = result.filter(p => {
+        const productGpu = (p.gpu || p.graphics || "").toLowerCase();
+        return selectedFilters.GPU.some(filterOpt => 
+          productGpu.includes(filterOpt.toLowerCase())
+        );
+      });
+    }
+
+    // Sorting Logic
     if (sortBy === 'price-low') result.sort((a, b) => a.price - b.price);
     if (sortBy === 'price-high') result.sort((a, b) => b.price - a.price);
     if (sortBy === 'name') result.sort((a, b) => a.name.localeCompare(b.name));
@@ -286,12 +297,11 @@ if (selectedFilters.GPU.length > 0) {
           </div>
           
           {/* Specs Grid with Navy Icons */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
             {[
               { label: 'Processor', value: selectedProduct.processor, icon: <Cpu size={16}/> },
               { label: 'RAM', value: selectedProduct.ram, icon: <Zap size={16}/> },
-              { label: 'Graphics', value: selectedProduct.gpu, icon: <Monitor size={16}/> },
-              { label: 'Storage', value: selectedProduct.storage, icon: <HardDrive size={16}/> },
+{ label: 'Graphics', value: selectedProduct.gpu || selectedProduct.graphics || 'Integrated', icon: <Monitor size={16}/> },              { label: 'Storage', value: selectedProduct.storage, icon: <HardDrive size={16}/> },
               { label: 'Display', value: selectedProduct.display || 'Full HD', icon: <Box size={16}/> },
               { label: 'OS', value: selectedProduct.os || 'Windows 11', icon: <ShieldCheck size={16}/> },
             ].map((spec, index) => (
@@ -323,6 +333,17 @@ if (selectedFilters.GPU.length > 0) {
           </div>
         </div>
       </div>
+                      {selectedProduct.description && (
+          <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+              <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Product Overview</p>
+            </div>
+            <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3">
+              {selectedProduct.description}
+            </p>
+          </div>
+        )}
     </div>
   </div>
 ) : (

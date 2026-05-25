@@ -220,7 +220,7 @@ return product.images[index].url || product.images[index];
                   </div>
                   
                   {/* Laptop Layout Specs Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
                     {[
                       { label: 'Processor', value: selectedProduct.processor, icon: <Cpu size={18}/> },
                       { label: 'RAM', value: selectedProduct.ram, icon: <Zap size={18}/> },
@@ -253,6 +253,17 @@ return product.images[index].url || product.images[index];
                   </div>
                 </div>
               </div>
+                                               {selectedProduct.description && (
+          <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+              <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Product Overview</p>
+            </div>
+            <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3">
+              {selectedProduct.description}
+            </p>
+          </div>
+        )}
             </div>
           </div>
         ) : (

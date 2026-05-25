@@ -287,7 +287,7 @@ const renderImage = (product, index = 0) => {
           </div>
           
           {/* Specs Grid with Navy Icons */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
             {[
               { label: 'Processor', value: selectedProduct.processor, icon: <Cpu size={16}/> },
               { label: 'RAM', value: selectedProduct.ram, icon: <Zap size={16}/> },
@@ -323,7 +323,19 @@ const renderImage = (product, index = 0) => {
             </button>
           </div>
         </div>
+       
       </div>
+            {selectedProduct.description && (
+          <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+              <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Product Overview</p>
+            </div>
+            <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3">
+              {selectedProduct.description}
+            </p>
+          </div>
+        )}
     </div>
   </div>
 ) : (
