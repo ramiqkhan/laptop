@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Star, ShoppingCart, Loader2, Cpu, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Component name capitalized (laptopages -> LaptopPages)
 const GamingBanner = ({ setSelectedProduct }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,16 +8,13 @@ const GamingBanner = ({ setSelectedProduct }) => {
   const [currentImageIndexes, setCurrentImageIndexes] = useState({});
   const sliderRef = useRef(null);
 
-  // Core base configuration matching backend routing path
-  const API_URL = `${import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app"}/api/products`;
-
   const fetchProducts = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const params = new URLSearchParams(location.search);
+      const params = new URLSearchParams(window.location.search);
       const searchQuery = params.get('search');
 
-      // Updated backend URL
       let url = 'https://laptopbackend-seven.vercel.app/api/products?category=gaming';
       if (searchQuery) {
         url += `&search=${encodeURIComponent(searchQuery)}`;
@@ -27,9 +23,10 @@ const GamingBanner = ({ setSelectedProduct }) => {
       const response = await fetch(url);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error fetching products:", err);
+      setError(err.message || "Something went wrong while pulling inventory.");
     } finally {
       setLoading(false);
     }
@@ -131,43 +128,43 @@ const GamingBanner = ({ setSelectedProduct }) => {
     <section className="w-full py-16 bg-[#F8F9FA] font-sans overflow-hidden">
       <div className="container mx-auto px-4 md:px-8 relative">
         
-        {/* Header Banner info layout setup */}
+        {/* Header Setup */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 border-l-8 border-[#0F172A] pl-6 gap-4">
           <div>
             <span className="text-blue-600 font-black text-[10px] uppercase tracking-[0.3em] mb-2 block">Premium Selection</span>
             <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] uppercase tracking-tighter">
-             Gaming <span className="text-gray-400 italic">Inventory</span>
+              Gaming <span className="text-gray-400 italic">Inventory</span>
             </h2>
           </div>
         </div>
 
         {/* --- MAIN SLIDER FRAME WRAPPER --- */}
-        <div className="relative group/mainSlider">
+        <div className="relative group/mainSlider w-full">
           
-          {/* Left Floating Button absolute style configuration */}
+          {/* Left Floating Button - Hidden on mobile viewports to prevent component blocking */}
           {products.length > 0 && (
             <button 
               onClick={scrollLeft}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-4 z-10 p-3 rounded-xl bg-white border border-[#E6E6E6] text-[#0F172A] hover:bg-[#0F172A] hover:text-white transition-all shadow-lg md:opacity-0 group-hover/mainSlider:opacity-100"
+              className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 z-10 p-3 rounded-xl bg-white border border-[#E6E6E6] text-[#0F172A] hover:bg-[#0F172A] hover:text-white transition-all shadow-lg md:opacity-0 group-hover/mainSlider:opacity-100 items-center justify-center"
             >
               <ChevronLeft size={20} />
             </button>
           )}
 
-          {/* Right Floating Button absolute style configuration */}
+          {/* Right Floating Button - Hidden on mobile viewports to prevent component blocking */}
           {products.length > 0 && (
             <button 
               onClick={scrollRight}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-4 z-10 p-3 rounded-xl bg-white border border-[#E6E6E6] text-[#0F172A] hover:bg-[#0F172A] hover:text-white transition-all shadow-lg md:opacity-0 group-hover/mainSlider:opacity-100"
+              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 z-10 p-3 rounded-xl bg-white border border-[#E6E6E6] text-[#0F172A] hover:bg-[#0F172A] hover:text-white transition-all shadow-lg md:opacity-0 group-hover/mainSlider:opacity-100 items-center justify-center"
             >
               <ChevronRight size={20} />
             </button>
           )}
 
-          {/* --- SLIDER CONTAINER WRAPPER --- */}
+          {/* --- SLIDER CONTAINER WRAPPER WITH SNAP ALIGNMENT CORRECTIONS --- */}
           <div 
             ref={sliderRef}
-            className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 pt-2 px-1 scroll-smooth"
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 pt-2 px-6 sm:px-1 scroll-smooth justify-start"
             style={{ 
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'none',
@@ -187,10 +184,11 @@ const GamingBanner = ({ setSelectedProduct }) => {
               return (
                 <div 
                   key={product._id} 
-                  className="w-[290px] sm:w-[310px] shrink-0 snap-start bg-white p-5 rounded-2xl border border-[#E6E6E6] hover:shadow-2xl transition-all duration-500 flex flex-col group relative overflow-hidden"
+                  // FIXED: Added snap-center and responsive margins layout structure
+                  className="w-[260px] sm:w-[310px] shrink-0 snap-center bg-white p-5 rounded-2xl border border-[#E6E6E6] hover:shadow-2xl transition-all duration-500 flex flex-col group relative overflow-hidden mx-auto sm:mx-0"
                   style={{ boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
                 >
-                  {/* Image Context nested slider frame inside items card mapping structure */}
+                  {/* Image Nested Carousel Framework */}
                   <div className="relative h-44 flex items-center justify-center mb-5 bg-[#F8F9FA] rounded-2xl overflow-hidden p-6 group/slider">
                     <img 
                       src={renderImage(images[currentIndex])} 
@@ -206,7 +204,7 @@ const GamingBanner = ({ setSelectedProduct }) => {
                     )}
                   </div>
 
-                  {/* Info Text Area element click redirection layout */}
+                  {/* Info Meta Fields Redirection Content */}
                   <div 
                     className="cursor-pointer" 
                     onClick={() => { setSelectedProduct(product); window.scrollTo(0,0); }}
@@ -240,7 +238,7 @@ const GamingBanner = ({ setSelectedProduct }) => {
                     </div>
                   </div>
 
-                  {/* Operational Layout Action buttons CTA frame element */}
+                  {/* Operational Interactive Call to Actions Layout */}
                   <div className="mt-auto flex flex-col gap-2.5">
                     <button 
                       onClick={() => handleAddToCart(product)}
