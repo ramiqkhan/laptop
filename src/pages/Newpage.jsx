@@ -1,8 +1,11 @@
+
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Cpu, Box, HardDrive, Zap, Monitor, ShieldCheck, ShoppingCart, CreditCard, Star } from 'lucide-react';
 
-const GamingLaptop = () => {
+const NewProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,7 +41,7 @@ const GamingLaptop = () => {
           price: Number(product.price) || 0, 
           img: productImage,
           quantity: 1,
-          brand: product.brand || "Gaming Premium",
+          brand: product.brand || "newproduct",
           processor: product.processor,
           ram: product.ram,
           storage: product.storage
@@ -72,7 +75,7 @@ const GamingLaptop = () => {
 const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
 const API_URL = `${BASE_URL}/api/products`;
 
-// --- FETCH GAMING PRODUCTS ---
+// --- FETCH newproduct PRODUCTS ---
 useEffect(() => {
   const fetchProducts = async () => {
     setLoading(true);
@@ -80,8 +83,8 @@ useEffect(() => {
       const params = new URLSearchParams(location.search);
       const searchQuery = params.get('search');
 
-      // Updated backend URL
-      let url = 'https://laptopbackend-seven.vercel.app/api/products?category=gaming';
+      // Changed from 'newproduct' to 'newproduct' to match database schema
+      let url = `${BASE_URL}/api/products?category=newproduct`;
       if (searchQuery) {
         url += `&search=${encodeURIComponent(searchQuery)}`;
       }
@@ -107,8 +110,9 @@ useEffect(() => {
   return product.images[index].url || product.images[index];
 };
 
-  const filteredAndSortedProducts = useMemo(() => {
-    let result = products.filter(p => p.category === 'gaming');
+const filteredAndSortedProducts = useMemo(() => {
+    // Changed from 'newproduct' to 'newproduct'
+    let result = products.filter(p => p.category === 'newproduct');
 
     if (selectedFilters.Brand.length > 0) result = result.filter(p => selectedFilters.Brand.includes(p.brand));
     if (selectedFilters.RAM.length > 0) result = result.filter(p => selectedFilters.RAM.includes(p.ram));
@@ -157,12 +161,12 @@ useEffect(() => {
         
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-xl md:text-3xl font-black text-black italic uppercase tracking-tighter">
-            {selectedProduct ? 'Extreme Performance' : 'Gaming Laptops'}
+            {selectedProduct ? 'Extreme Performance' : 'New Products'}
           </h1>
           <nav className="hidden sm:block text-xs md:text-sm text-gray-500 font-bold uppercase tracking-widest">
             <Link to="/" className="hover:text-[#F4C430] transition-colors">Home</Link> 
             <span className="mx-2">/</span> 
-            <span className="text-gray-800">Gaming</span>
+            <span className="text-gray-800">New Products</span>
           </nav>
         </div>
 
@@ -207,7 +211,7 @@ useEffect(() => {
                   onClick={() => setSelectedProduct(null)}
                   className="flex items-center gap-2 font-bold text-sm mb-6 text-[#0F172A] hover:text-[#F4C430] transition-all uppercase tracking-tighter"
                 >
-                  <ArrowLeft size={18} /> Back to Gaming
+                  <ArrowLeft size={18} /> Back to New Products
                 </button>
 
                 <div className="bg-white rounded-3xl border border-[#E6E6E6] p-6 md:p-10 shadow-xl overflow-hidden relative">
@@ -315,7 +319,7 @@ useEffect(() => {
               <>
                 <div className="bg-white rounded-2xl border border-[#E6E6E6] p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
                   <p className="text-gray-700 font-semibold text-xs sm:text-sm">
-                    Showing {filteredAndSortedProducts.length > 0 ? indexOfFirstItem + 1 : 0}-{Math.min(indexOfLastItem, filteredAndSortedProducts.length)} of {filteredAndSortedProducts.length} Gaming Beasts
+                    Showing {filteredAndSortedProducts.length > 0 ? indexOfFirstItem + 1 : 0}-{Math.min(indexOfLastItem, filteredAndSortedProducts.length)} of {filteredAndSortedProducts.length} New Products
                   </p>
                   <select onChange={(e) => {setSortBy(e.target.value); setCurrentPage(1);}} className="w-full md:w-auto border border-[#E6E6E6] rounded-lg px-4 py-1.5 bg-white text-sm outline-none focus:border-[#F4C430] cursor-pointer font-bold">
                     <option value="default">Default Sorting</option>
@@ -433,4 +437,4 @@ useEffect(() => {
   );
 };
 
-export default GamingLaptop;
+export default NewProductsPage;

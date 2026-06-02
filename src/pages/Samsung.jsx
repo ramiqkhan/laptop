@@ -220,7 +220,7 @@ return product.images[index].url || product.images[index];
                   </div>
                   
                   {/* Laptop Layout Specs Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
                     {[
                       { label: 'Processor', value: selectedProduct.processor, icon: <Cpu size={18}/> },
                       { label: 'RAM', value: selectedProduct.ram, icon: <Zap size={18}/> },

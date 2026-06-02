@@ -89,6 +89,7 @@ function Navbar() {
     const navLinks = [
         { name: 'Home', path: '/' },
         { name: 'Laptops', path: '/laptops' }, 
+        { name: 'New Products', path: '/new-products' },
         { name: 'Gaming', path: '/gaming' }, 
         { name: 'Work Station', path: '/workstation' },
         { name: 'Deals', path: '/deals' },
