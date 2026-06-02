@@ -18,6 +18,7 @@ import FeaturedProducts from '../components/Featurecomp';
 import LaptopPages from '../components/laptopbanner';
 import GamingBanner from '../components/gamingbanner';
 import WorkBanner from '../components/workbanner';
+import NewBanner from '../components/neworkbanner';
 
 const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -291,6 +292,7 @@ const Home = () => {
             <div className="mt-20">
 
               <LaptopPages setSelectedProduct={setSelectedProduct} />
+              <NewBanner setSelectedProduct={setSelectedProduct} />
               <GamingBanner setSelectedProduct={setSelectedProduct} />
                             <WorkBanner setSelectedProduct={setSelectedProduct} />
               <FeaturedProducts setSelectedProduct={setSelectedProduct} />

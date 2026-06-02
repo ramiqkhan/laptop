@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Star, ShoppingCart, Loader2, Cpu, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const WorkBanner = ({ setSelectedProduct }) => {
+const NewBanner = ({ setSelectedProduct }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,7 +19,7 @@ const WorkBanner = ({ setSelectedProduct }) => {
       const params = new URLSearchParams(window.location.search);
       const searchQuery = params.get('search');
 
-      let url = 'https://laptopbackend-seven.vercel.app/api/products?category=workstation';
+      let url = 'https://laptopbackend-seven.vercel.app/api/products?category=newproduct';
       if (searchQuery) {
         url += `&search=${encodeURIComponent(searchQuery)}`;
       }
@@ -137,7 +137,7 @@ const WorkBanner = ({ setSelectedProduct }) => {
           <div>
             <span className="text-blue-600 font-black text-[10px] uppercase tracking-[0.3em] mb-2 block">Premium Selection</span>
             <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] uppercase tracking-tighter">
-              Workstation <span className="text-gray-400 italic">Inventory</span>
+              New Products <span className="text-gray-400 italic">Inventory</span>
             </h2>
           </div>
         </div>
@@ -268,4 +268,4 @@ const WorkBanner = ({ setSelectedProduct }) => {
   );
 };
 
-export default WorkBanner;
+export default NewBanner;
