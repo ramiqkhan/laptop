@@ -137,7 +137,7 @@ const NewBanner = ({ setSelectedProduct }) => {
           <div>
             <span className="text-blue-600 font-black text-[10px] uppercase tracking-[0.3em] mb-2 block">Premium Selection</span>
             <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] uppercase tracking-tighter">
-              New Products <span className="text-gray-400 italic">Inventory</span>
+              New Laptops <span className="text-gray-400 italic">Inventory</span>
             </h2>
           </div>
         </div>

@@ -15,6 +15,7 @@ function Footer() {
     const navLinks = [
         { name: 'Home', path: '/' },
         { name: 'Laptops', path: '/laptops' }, 
+         { name: 'New Laptops', path: '/new-products' },
         { name: 'Gaming Laptops', path: '/gaming' },
         { name: 'Deals', path: '/deals' },
         { name: 'About Us', path: '/about' },
