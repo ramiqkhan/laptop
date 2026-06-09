@@ -14,7 +14,8 @@ import brand6 from '../assets/logo/sonybg.png';
 import brand7 from '../assets/logo/samsung.png';
 import heroLaptop from '../assets/imgs/hero-1bg.png';
 import FeaturedProducts from '../components/Featurecomp';
-
+import banner1 from '../assets/banner.jpeg';
+import banner2 from '../assets/banners.jpeg';
 import LaptopPages from '../components/laptopbanner';
 import GamingBanner from '../components/gamingbanner';
 import WorkBanner from '../components/workbanner';
@@ -26,7 +27,16 @@ const Home = () => {
   const [showAllBrands, setShowAllBrands] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0); 
   const navigate = useNavigate();
+const [currentImageIndex, setCurrentImageIndex] = useState(0);
+const images = [banner1, banner2];
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? 1 : 0));
+    }, 5000); // 5000ms = 5 seconds
+
+    return () => clearInterval(interval); // Component unmount hone par timer clear karein
+  }, []);
   const brands = [
     { name: "HP", img: typeof brand1 !== 'undefined' ? brand1 : "", path: "/hp" },
     { name: "Dell", img: typeof brand2 !== 'undefined' ? brand2 : "", path: "/dell" },
@@ -234,21 +244,42 @@ const Home = () => {
 </div>
       ) : (
         <>
-          <section className="relative w-full max-w-[1600px] mx-auto px-4 lg:px-12 py-4 mt-6">
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-[#A9D1F7] to-white border border-white/60 shadow-sm min-h-[450px] flex items-center">
-                <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center px-16">
-                  <div className="py-10">
-                    <span className="text-blue-600 font-black text-[10px] uppercase tracking-[0.4em] mb-4 block">New Season Drop</span>
-                    <h1 className="text-[50px] lg:text-[70px] font-black leading-[0.9] uppercase italic tracking-tighter mb-8 text-[#0F172A]">
-                      Next-Gen <br /> <span className="text-white drop-shadow-sm">Gaming</span> Laptops
-                    </h1>
-                    <Link to="/laptops" className="inline-block px-12 py-5 bg-[#0F172A] text-white font-black uppercase text-[10px] tracking-widest rounded-2xl shadow-2xl hover:bg-blue-600 transition-all">Shop Collection</Link>
-                  </div>
-                  <div className="flex justify-end">
-                    <img src={heroLaptop} className="w-[600px] object-contain drop-shadow-[0_35px_35px_rgba(0,0,0,0.25)]" alt="Hero" />
-                  </div>
-                </div>
-            </div>
+          <section className="relative w-full max-w-[1900px] mx-auto px-4 lg:px-12 py-4 mt-6">
+  
+  {/* Full Banner Container */}
+
+  
+<div className="relative w-full h-[250px] sm:h-[350px] md:h-[500px] lg:h-[700px] xl:h-[850px] overflow-hidden rounded-2xl md:rounded-[2.1rem] shadow-2xl bg-[#0A1220]">
+  <Link to="/deals" className="block w-full h-full">
+    {images && images.length > 0 ? (
+      images.map((img, index) => (
+        <img
+          key={index}
+          src={img}
+          alt={`Banner ${index + 1}`}
+          // yahan 'object-contain' use kiya hai taake image puri dikhe
+          // 'object-center' image ko beech mein rakhega
+          className={`absolute inset-0 w-full h-full object-contain object-center transition-opacity duration-1000 ease-in-out ${
+            index === currentImageIndex ? "opacity-100" : "opacity-0"
+          }`}
+          style={{
+            zIndex: index === currentImageIndex ? 1 : 0,
+          }}
+        />
+      ))
+    ) : (
+      <div className="w-full h-full flex items-center justify-center text-gray-500">
+        Loading Banners...
+      </div>
+    )}
+  </Link>
+</div>
+  {/* Optional Dark Overlay: Taake text saaf dikhe agar image bright ho */}
+
+
+
+
+   
 
             <div className="relative mt-8 md:mt-10">
               <div className="hidden md:flex items-center gap-4">

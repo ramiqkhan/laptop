@@ -226,24 +226,35 @@ const renderImage = (productOrImages, index = 0) => {
       ) : (
         <>
           {/* Deals Banner Section */}
-          <div className="bg-[#0F172A] text-white py-20 md:py-28 px-4 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-1/3 h-full bg-blue-600/10 skew-x-12 translate-x-20"></div>
-            <div className="max-w-[1400px] mx-auto text-center relative z-10">
-              <span className="text-[#F4C430] font-black text-[12px] uppercase tracking-[0.5em] mb-4 block">Exclusive Flash Sales</span>
-              <h1 className="text-5xl sm:text-7xl md:text-9xl font-black mb-8 tracking-tighter italic uppercase leading-none">
-                FLASH <span className="text-[#F4C430]">DEALS</span>
-              </h1>
-              
-              <div className="flex justify-center gap-3 md:gap-6 mt-12">
-                {[{ label: 'Hours', val: timeLeft.hours }, { label: 'Min', val: timeLeft.mins }, { label: 'Sec', val: timeLeft.secs }].map((unit, i) => (
-                  <div key={i} className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[2rem] min-w-[120px] shadow-2xl">
-                    <div className="text-4xl md:text-5xl font-black text-[#F4C430] italic">{unit.val < 10 ? `0${unit.val}` : unit.val}</div>
-                    <div className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black mt-2">{unit.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+   <div className="bg-[#0F172A] text-white py-16 md:py-28 px-4 relative overflow-hidden">
+  {/* Decorative background element */}
+  <div className="absolute top-0 right-0 w-1/2 md:w-1/3 h-full bg-blue-600/10 skew-x-12 translate-x-20"></div>
+  
+  <div className="max-w-[1400px] mx-auto text-center relative z-10">
+    <span className="text-[#F4C430] font-black text-[10px] md:text-[12px] uppercase tracking-[0.3em] md:tracking-[0.5em] mb-4 block">
+      Exclusive Flash Sales
+    </span>
+    
+    {/* Font size adjusted for mobile (4xl) to desktop (9xl) */}
+    <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter italic uppercase leading-[0.8]">
+      FLASH <span className="text-[#F4C430]">DEALS</span>
+    </h1>
+    
+    {/* Timer container - adjusted grid/gap for mobile */}
+    <div className="flex justify-center gap-2 md:gap-6 mt-8 md:mt-12">
+      {[{ label: 'Hours', val: timeLeft.hours }, { label: 'Min', val: timeLeft.mins }, { label: 'Sec', val: timeLeft.secs }].map((unit, i) => (
+        <div key={i} className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] min-w-[80px] md:min-w-[120px] shadow-2xl">
+          <div className="text-2xl sm:text-4xl md:text-5xl font-black text-[#F4C430] italic">
+            {unit.val < 10 ? `0${unit.val}` : unit.val}
           </div>
+          <div className="text-[8px] md:text-[10px] uppercase tracking-[0.15em] md:tracking-[0.2em] text-gray-400 font-black mt-1 md:mt-2">
+            {unit.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
 
           <div className="max-w-[1400px] mx-auto px-6 py-20">
             {loading ? (
