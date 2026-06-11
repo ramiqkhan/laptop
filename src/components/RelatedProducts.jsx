@@ -22,7 +22,7 @@ const RelatedProducts = ({ currentProduct, allProducts }) => {
   return (
     <div className="mt-8 border-t pt-6">
       <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 mb-4">
-        Related {currentProduct.category}s
+        Related Products
       </h3>
       
       {/* 💡 ONLY CHANGED THIS LINE: Added flex overflow for mobile/tablet & grid for desktop */}
