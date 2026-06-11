@@ -13,7 +13,7 @@ const Deals = () => {
   const [selectedDeal, setSelectedDeal] = useState(null); 
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 12, mins: 45, secs: 30 });
-
+const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
 
 
@@ -210,17 +210,29 @@ const renderImage = (productOrImages, index = 0) => {
                 </div>
               </div>
             </div>
-                                             {selectedProduct.description && (
-          <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
-              <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Product Overview</p>
-            </div>
-            <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3">
-              {selectedProduct.description}
-            </p>
-          </div>
-        )}
+                      {selectedDeal?.description && (
+  <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+    <div 
+      className="flex items-center justify-between cursor-pointer"
+      onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+        <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Product Overview</p>
+      </div>
+      <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none">
+        {isDescriptionOpen ? '−' : '+'}
+      </span>
+    </div>
+    
+    {isDescriptionOpen && (
+      <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3 animate-in fade-in duration-300">
+        {selectedDeal.description}
+      </p>
+    )}
+  </div>
+)}
+      
           </div>
         </div>
       ) : (
