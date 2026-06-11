@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Star, ShoppingCart, Loader2, Cpu, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom'; // Ensure this is imported
 
 const NewBanner = ({ setSelectedProduct }) => {
   const [products, setProducts] = useState([]);
@@ -250,12 +251,12 @@ const NewBanner = ({ setSelectedProduct }) => {
                     >
                       <ShoppingCart size={16} /> Add to Cart
                     </button>
-                    <button 
-                      onClick={() => { setSelectedProduct(product); window.scrollTo(0,0); }}
-                      className="w-full py-3 bg-gradient-to-r from-[#F4C430] to-[#E2B020] text-[#0F172A] text-[11px] font-black rounded-xl border border-[#D4A017] text-center uppercase tracking-[0.15em] shadow-md hover:brightness-105 transition-all"
-                    >
-                      View Details
-                    </button>
+                     <Link 
+                 to={`/product/${product._id || product.id}`}
+                 className="w-full py-3 bg-gradient-to-r from-[#F4C430] to-[#E2B020] text-[#0F172A] text-[11px] font-black rounded-xl border border-[#D4A017] text-center uppercase tracking-[0.15em] shadow-md hover:brightness-105 transition-all block"
+               >
+                 View Details
+               </Link>
                   </div>
                 </div>
               );

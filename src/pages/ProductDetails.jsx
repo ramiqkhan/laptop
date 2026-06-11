@@ -5,6 +5,7 @@ import {
   Cpu, Zap, Monitor, HardDrive, Box, ShieldCheck
 } from "lucide-react";
 import lap1 from "../assets/imgs/brand1.png";
+import RelatedProducts from "../components/RelatedProducts";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -14,6 +15,7 @@ const ProductDetails = () => {
   const [related, setRelated] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0); // Image gallery selector state
+const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 
   // Fallback API if environment variable isn't fully ready
   const API = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
@@ -95,25 +97,34 @@ const ProductDetails = () => {
   }, [id, API]);
 
   // Fetch related catalog products
-  useEffect(() => {
-    const fetchRelated = async () => {
-      try {
-        const res = await fetch(`${API}/api/products`);
-        const data = await res.json();
+ // Fetch related catalog products
+useEffect(() => {
+  // Only fetch if we have the current product's category
+  if (!product || !product.category) return;
 
-        if (Array.isArray(data)) {
-          const filtered = data
-            .filter((p) => p._id !== id)
-            .slice(0, 4);
-          setRelated(filtered);
-        }
-      } catch (err) {
-        console.log("Error fetching related products:", err);
+  const fetchRelated = async () => {
+    try {
+      const res = await fetch(`${API}/api/products`);
+      const data = await res.json();
+
+      if (Array.isArray(data)) {
+        // Filter by Category AND exclude the current product
+        const filtered = data
+          .filter((p) => 
+            p.category?.toLowerCase() === product.category.toLowerCase() && 
+            p._id !== id
+          )
+          .slice(0, 4);
+        
+        setRelated(filtered);
       }
-    };
+    } catch (err) {
+      console.log("Error fetching related products:", err);
+    }
+  };
 
-    fetchRelated();
-  }, [id, API]);
+  fetchRelated();
+}, [id, product, API]); // Added 'product' as a dependency
 
   if (!product) {
     return (
@@ -243,21 +254,36 @@ const ProductDetails = () => {
           </div>
 
           {/* Description Overview Render */}
-          {product.description && (
-            <div className="mb-2 mt-10 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
-                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Product Overview</p>
-              </div>
-              <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3">
-                {product.description}
-              </p>
-            </div>
-          )}
+     {product?.description && (
+  <div className="mb-2 mt-10 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+    {/* Header / Click Trigger */}
+    <div 
+      className="flex items-center justify-between cursor-pointer group"
+      onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+        <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
+          Product Overview
+        </p>
+      </div>
+      <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none transition-transform duration-300">
+        {isDescriptionOpen ? '−' : '+'}
+      </span>
+    </div>
+
+    {/* Collapsible Content */}
+    {isDescriptionOpen && (
+      <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3 animate-in fade-in duration-300">
+        {product.description}
+      </p>
+    )}
+  </div>
+)}
         </div>
 
         {/* RELATED PRODUCTS SECTION */}
-        <div className="mt-12 sm:mt-16">
+        {/* <div className="mt-12 sm:mt-16">
           <h2 className="text-lg sm:text-xl font-bold text-slate-800 mb-4 sm:mb-5">
             Related Products
           </h2>
@@ -285,8 +311,15 @@ const ProductDetails = () => {
               </Link>
             ))}
           </div>
-        </div>
-
+        </div> */}
+{/* RELATED PRODUCTS SECTION */}
+{/* RELATED PRODUCTS SECTION */}
+<div className="mt-12 sm:mt-16">
+  <RelatedProducts 
+    currentProduct={product} 
+    allProducts={related} // Pass the 'related' state here
+  />
+</div>
       </div>
     </div>
   );

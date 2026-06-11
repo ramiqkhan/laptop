@@ -29,6 +29,8 @@ const Home = () => {
   const navigate = useNavigate();
 const [currentImageIndex, setCurrentImageIndex] = useState(0);
 const images = [banner1, banner2];
+const [products, setProducts] = useState([]);
+const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -229,17 +231,32 @@ const images = [banner1, banner2];
 
       </div>
     </div>
-         {selectedProduct.description && (
-          <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
-              <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Product Overview</p>
-            </div>
-            <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3">
-              {selectedProduct.description}
-            </p>
-          </div>
-        )}
+         {/* Collapsible Overview */}
+ {selectedProduct.description && (
+  <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+    <div 
+      className="flex items-center justify-between cursor-pointer"
+      onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+        <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
+          Product Overview
+        </p>
+      </div>
+      <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none">
+        {isDescriptionOpen ? '−' : '+'}
+      </span>
+    </div>
+
+    {isDescriptionOpen && (
+      <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3 animate-in fade-in duration-300">
+        {selectedProduct.description}
+      </p>
+    )}
+  </div>
+)}
+        
   </div>
 </div>
       ) : (
@@ -257,14 +274,10 @@ const images = [banner1, banner2];
           key={index}
           src={img}
           alt={`Banner ${index + 1}`}
-          // yahan 'object-contain' use kiya hai taake image puri dikhe
-          // 'object-center' image ko beech mein rakhega
           className={`absolute inset-0 w-full h-full object-contain object-center transition-opacity duration-1000 ease-in-out ${
             index === currentImageIndex ? "opacity-100" : "opacity-0"
           }`}
-          style={{
-            zIndex: index === currentImageIndex ? 1 : 0,
-          }}
+          style={{ zIndex: index === currentImageIndex ? 1 : 0 }}
         />
       ))
     ) : (
@@ -273,6 +286,22 @@ const images = [banner1, banner2];
       </div>
     )}
   </Link>
+
+  {/* Pagination Dots */}
+  {images && images.length > 0 && (
+    <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-3">
+      {images.map((_, index) => (
+        <button
+          key={index}
+          onClick={() => setCurrentImageIndex(index)}
+          className={`w-3 h-3 rounded-full border-2 border-white transition-all duration-300 ${
+            index === currentImageIndex ? "bg-white" : "bg-transparent"
+          }`}
+          aria-label={`Go to slide ${index + 1}`}
+        />
+      ))}
+    </div>
+  )}
 </div>
   {/* Optional Dark Overlay: Taake text saaf dikhe agar image bright ho */}
 

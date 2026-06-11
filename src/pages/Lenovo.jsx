@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Cpu, Zap, ShoppingCart, Star, Filter, X, HardDrive, Monitor, Box, ShieldCheck, CreditCard } from 'lucide-react';
+import RelatedProducts from '../components/RelatedProducts';
 
 const Lenovo = () => {
   const [products, setProducts] = useState([]);
@@ -10,6 +11,7 @@ const Lenovo = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 
   // --- FILTER STATES ---
   const [selectedFilters, setSelectedFilters] = useState({
@@ -253,17 +255,42 @@ return product.images[index].url || product.images[index];
                   </div>
                 </div>
               </div>
-                                               {selectedProduct.description && (
-          <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
-              <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Product Overview</p>
-            </div>
-            <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3">
-              {selectedProduct.description}
-            </p>
-          </div>
-        )}
+      {selectedProduct.description && (
+  <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+    <div 
+      className="flex items-center justify-between cursor-pointer"
+      onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+        <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
+          Product Overview
+        </p>
+      </div>
+      <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none">
+        {isDescriptionOpen ? '−' : '+'}
+      </span>
+    </div>
+
+    {isDescriptionOpen && (
+      <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3 animate-in fade-in duration-300">
+        {selectedProduct.description}
+      </p>
+    )}
+  </div>
+)}
+
+         <div className="mt-8">
+      <RelatedProducts 
+       currentProduct={selectedProduct} 
+        allProducts={products} 
+        onSelect={(prod) => {
+          setSelectedProduct(prod);
+          setActiveImageIndex(0);
+          window.scrollTo(0, 0);
+        }}
+      />
+    </div>
             </div>
           </div>
         ) : (
