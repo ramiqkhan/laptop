@@ -24,13 +24,16 @@ const RelatedProducts = ({ currentProduct, allProducts }) => {
       <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 mb-4">
         Related {currentProduct.category}s
       </h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      
+      {/* 💡 ONLY CHANGED THIS LINE: Added flex overflow for mobile/tablet & grid for desktop */}
+      <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-4 pb-2 scrollbar-none">
         {related.map((product) => (
           <Link 
             to={`/product/${product._id}`} 
             key={product._id} 
             onClick={() => window.scrollTo(0, 0)}
-            className="bg-white p-3 rounded-xl border border-slate-100 hover:border-[#F4C430] transition-all cursor-pointer block"
+            /* 💡 ONLY CHANGED THIS LINE: Added flex-none & fixed width for mobile viewports */
+            className="flex-none w-[165px] sm:w-[190px] md:w-full bg-white p-3 rounded-xl border border-slate-100 hover:border-[#F4C430] transition-all cursor-pointer block"
           >
             <img 
               src={product.images?.[0]?.url || product.images?.[0] || ""} 

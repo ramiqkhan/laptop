@@ -134,7 +134,42 @@ const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 
   return (
     <div className="w-full font-['Poppins'] bg-white min-h-screen">
-      
+   <div className="relative w-full aspect-[16/9] mb-10 overflow-hidden">
+  <Link to="/deals" className="block w-full h-full">
+    {images?.length > 0 ? (
+      images.map((img, index) => (
+        <img
+          key={index}
+          src={img}
+          alt={`Banner ${index + 1}`}
+          className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-1000 ease-in-out ${
+            index === currentImageIndex ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ zIndex: index === currentImageIndex ? 1 : 0 }}
+        />
+      ))
+    ) : (
+      <div className="w-full h-full flex items-center justify-center">
+        Loading Banners...
+      </div>
+    )}
+  </Link>
+  {images?.length > 0 && (
+  <div className="absolute bottom-4 left-0 right-0 flex mb-6 justify-center items-center gap-2 z-20">
+    {images.map((_, index) => (
+      <button
+        key={index}
+        onClick={() => setCurrentImageIndex(index)}
+        className={`transition-all duration-300 rounded-full ${
+          index === currentImageIndex
+            ? "w-6 h-2 bg-white"
+            : "w-2 h-2 bg-white/50"
+        }`}
+      />
+    ))}
+  </div>
+)}
+</div>
       {selectedProduct ? (
      <div className="max-w-7xl mx-auto px-6 py-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
   <button 
@@ -266,43 +301,7 @@ const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
   {/* Full Banner Container */}
 
   
-<div className="relative w-full h-[250px] sm:h-[350px] md:h-[500px] lg:h-[700px] xl:h-[850px] overflow-hidden rounded-2xl md:rounded-[2.1rem] shadow-2xl bg-[#0A1220]">
-  <Link to="/deals" className="block w-full h-full">
-    {images && images.length > 0 ? (
-      images.map((img, index) => (
-        <img
-          key={index}
-          src={img}
-          alt={`Banner ${index + 1}`}
-          className={`absolute inset-0 w-full h-full object-contain object-center transition-opacity duration-1000 ease-in-out ${
-            index === currentImageIndex ? "opacity-100" : "opacity-0"
-          }`}
-          style={{ zIndex: index === currentImageIndex ? 1 : 0 }}
-        />
-      ))
-    ) : (
-      <div className="w-full h-full flex items-center justify-center text-gray-500">
-        Loading Banners...
-      </div>
-    )}
-  </Link>
 
-  {/* Pagination Dots */}
-  {images && images.length > 0 && (
-    <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-3">
-      {images.map((_, index) => (
-        <button
-          key={index}
-          onClick={() => setCurrentImageIndex(index)}
-          className={`w-3 h-3 rounded-full border-2 border-white transition-all duration-300 ${
-            index === currentImageIndex ? "bg-white" : "bg-transparent"
-          }`}
-          aria-label={`Go to slide ${index + 1}`}
-        />
-      ))}
-    </div>
-  )}
-</div>
   {/* Optional Dark Overlay: Taake text saaf dikhe agar image bright ho */}
 
 
