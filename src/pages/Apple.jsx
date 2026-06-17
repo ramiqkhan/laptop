@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Cpu, Zap, ShoppingCart, Star, Filter, X, HardDrive, Monitor, Box, ShieldCheck, CreditCard } from 'lucide-react';
-import RelatedProducts from '../components/RelatedProducts';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Cpu, Box, HardDrive, Zap, ShoppingCart, Star, Filter } from 'lucide-react';
 
 const Apple = () => {
   const [products, setProducts] = useState([]);
@@ -9,52 +8,89 @@ const Apple = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('default');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 
-  // --- FILTER STATES ---
+  const location = useLocation();
+  const navigate = useNavigate(); 
+  const itemsPerPage = 6;
+  const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
+
   const [selectedFilters, setSelectedFilters] = useState({
     RAM: [],
     GPU: []
   });
-  
+
   const [openSections, setOpenSections] = useState({
     RAM: true,
     GPU: true
   });
 
-  const navigate = useNavigate(); 
-  const itemsPerPage = 6;
-const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
-  // --- API FETCHING ---
- useEffect(() => {
-  const fetchAppleProducts = async () => {
-    setLoading(true);
+  // --- FIXED & SYNCED ADD TO CART ---
+  const addToCart = (product, silent = false) => {
+    if (!product) return;
     try {
-      const response = await fetch(`${BASE_URL}/api/products?category=normal`);
-      const data = await response.json();
-      const appleOnly = data.filter(p => p.brand?.toUpperCase() === 'APPLE');
-      setProducts(appleOnly);
-    } catch (err) {
-      console.error("Error fetching Apple products:", err);
-    } finally {
-      setLoading(false);
+      const savedCart = localStorage.getItem('globalCart');
+      let currentCart = savedCart ? JSON.parse(savedCart) : [];
+      
+      const productId = product._id || product.id;
+      const productImage = renderImage(product);
+
+      const existingItem = currentCart.find(item => item.id === productId);
+
+      if (existingItem) {
+        currentCart = currentCart.map(item =>
+          item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        currentCart.push({
+          id: productId,
+          name: product.name,
+          price: Number(product.price) || 0, 
+          img: productImage,
+          quantity: 1,
+          brand: product.brand || "Apple",
+          processor: product.processor,
+          ram: product.ram,
+          storage: product.storage
+        });
+      }
+
+      localStorage.setItem('globalCart', JSON.stringify(currentCart));
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { id: productId } }));
+      if (!silent) alert(`${product.name} added to cart!`);
+    } catch (e) {
+      console.error("Cart saving error:", e);
     }
   };
-  fetchAppleProducts();
-}, []);
 
-const renderImage = (product, index = 0) => {
-if (!product || !product.images || product.images.length === 0) {
-  return "https://via.placeholder.com/150?text=No+Image";
-}
-return product.images[index].url || product.images[index];
-};
-  // --- UTILS ---
-  const toggleSection = (section) => {
-    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  // --- API FETCHING ---
+  useEffect(() => {
+    const fetchAppleProducts = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${BASE_URL}/api/products?category=normal`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        
+        // Filter out items strictly belonging to Apple brand
+        const appleOnly = Array.isArray(data) ? data.filter(p => p.brand?.toUpperCase() === 'APPLE') : [];
+        setProducts(appleOnly);
+      } catch (err) {
+        console.error("Error fetching Apple products:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAppleProducts();
+  }, []);
+
+  const renderImage = (product, index = 0) => {
+    if (!product || !product.images || product.images.length === 0) {
+      return "https://via.placeholder.com/150?text=No+Image";
+    }
+    return product.images[index].url || product.images[index];
   };
+
+  const toggleSection = (section) => setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
 
   const handleFilterChange = (category, option) => {
     setSelectedFilters(prev => {
@@ -66,60 +102,36 @@ return product.images[index].url || product.images[index];
     setCurrentPage(1);
   };
 
+  // --- FILTER & SORT LOGIC ---
+  const filteredAndSortedProducts = useMemo(() => {
+    let result = [...products];
 
-  // --- CART LOGIC ---
-  const addToCart = (product, silent = false) => {
-    if (!product) return;
-    const savedCart = localStorage.getItem('globalCart');
-    let currentCart = savedCart ? JSON.parse(savedCart) : [];
-    
-    const existingItem = currentCart.find(item => item.id === product._id);
-    if (existingItem) {
-      currentCart = currentCart.map(item => item.id === product._id ? { ...item, quantity: item.quantity + 1 } : item);
-    } else {
-      currentCart.push({
-        id: product._id,
-        name: product.name,
-        price: Number(product.price),
-        img: renderImage(product),
-        quantity: 1,
-        brand: "Apple",
-        ram: product.ram,
-        processor: product.processor
+    if (selectedFilters.RAM.length > 0) {
+      result = result.filter(p => {
+        const pRam = p.ram?.toUpperCase().replace(/\s/g, '') || "";
+        return selectedFilters.RAM.some(f => pRam.includes(f.toUpperCase()));
       });
     }
 
-    localStorage.setItem('globalCart', JSON.stringify(currentCart));
-    window.dispatchEvent(new CustomEvent('cartUpdated'));
-    if (!silent) alert(`${product.name} added to cart!`);
-  };
-
-  const handleBuyNow = (product) => {
-    addToCart(product, true); 
-    navigate('/cart'); 
-  };
-
-  // --- FILTER & SORT LOGIC ---
-  const filteredAndSorted = useMemo(() => {
-    let result = products.filter(p => {
-      const pRam = p.ram?.toUpperCase().replace(/\s/g, '') || "";
-      const pGpu = p.gpu?.toUpperCase() || "INTEGRATED";
-      const ramMatch = selectedFilters.RAM.length === 0 || 
-        selectedFilters.RAM.some(f => pRam.includes(f.toUpperCase()));
-      const gpuMatch = selectedFilters.GPU.length === 0 || 
-        selectedFilters.GPU.some(f => pGpu.includes(f.toUpperCase()));
-      return ramMatch && gpuMatch;
-    });
+    if (selectedFilters.GPU.length > 0) {
+      result = result.filter(p => {
+        const pGpu = p.gpu?.toUpperCase() || "INTEGRATED";
+        return selectedFilters.GPU.some(f => pGpu.includes(f.toUpperCase()));
+      });
+    }
 
     if (sortBy === 'price-low') result.sort((a, b) => a.price - b.price);
     if (sortBy === 'price-high') result.sort((a, b) => b.price - a.price);
     if (sortBy === 'name') result.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortBy === 'popularity') result.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+    
     return result;
   }, [products, sortBy, selectedFilters]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
-  const currentProducts = filteredAndSorted.slice(indexOfLastItem - itemsPerPage, indexOfLastItem);
-  const totalPages = Math.ceil(filteredAndSorted.length / itemsPerPage);
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProducts = filteredAndSortedProducts.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
 
   const categories = [
     { title: "RAM", options: ["8GB", "16GB", "32GB"] },
@@ -127,8 +139,8 @@ return product.images[index].url || product.images[index];
   ];
 
   if (loading) return (
-    <div className="flex justify-center items-center min-h-screen bg-white">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-[#0F172A]"></div>
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#F4C430]"></div>
     </div>
   );
 
@@ -136,368 +148,149 @@ return product.images[index].url || product.images[index];
     <div className="bg-[#F8F9FA] min-h-screen font-sans pb-12">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
         
-        {/* Updated Header - Matches Laptop Style */}
-        <div className="flex justify-between items-center mb-10">
-          <div>
-            <h1 className="text-2xl md:text-4xl font-black text-[#0F172A] uppercase italic tracking-tighter leading-none">
-              Apple Elite Series
-            </h1>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-2">Authorized Premium Inventory</p>
-          </div>
-          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 hover:text-[#0F172A] tracking-widest transition-colors">
-             <ArrowLeft size={14} strokeWidth={3}/> Return to Fleet
-          </button>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-xl md:text-3xl font-black text-black italic uppercase tracking-tighter">
+            Apple Fleet
+          </h1>
+          <nav className="hidden sm:block text-xs md:text-sm text-gray-500 font-bold uppercase tracking-widest">
+            <Link to="/" className="hover:text-[#F4C430] transition-colors">Home</Link> 
+            <span className="mx-2">/</span> 
+            <span className="text-gray-800">Apple</span>
+          </nav>
         </div>
 
-        {selectedProduct ? (
-          /* --- APPLE DETAIL VIEW (Laptop Layout) --- */
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <button 
-              onClick={() => setSelectedProduct(null)} 
-              className="flex items-center gap-2 font-black text-[10px] mb-8 text-[#0F172A] uppercase tracking-[0.2em] hover:text-[#F4C430] transition-colors"
-            >
-              <ArrowLeft size={16} strokeWidth={3} /> Back to Apple Collection
-            </button>
-            
-            <div className="bg-white rounded-[40px] border border-[#E6E6E6] p-6 md:p-12 shadow-2xl overflow-hidden relative">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                
-                {/* Left: Premium Image Gallery Layout */}
-                <div className="flex flex-col gap-6">
-                  <div className="bg-[#F8F9FA] rounded-[32px] p-10 flex items-center justify-center border border-gray-50 min-h-[450px] shadow-inner">
-                    <img 
-                      src={renderImage(selectedProduct, activeImageIndex)} 
-                      alt={selectedProduct.name} 
-                      className="max-h-[380px] object-contain drop-shadow-2xl transition-all duration-500" 
-                    />
-                  </div>
-                  {selectedProduct.images && selectedProduct.images.length > 1 && (
-                    <div className="flex flex-wrap gap-4 justify-center">
-                      {selectedProduct.images.map((_, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => setActiveImageIndex(idx)}
-                          className={`w-20 h-20 rounded-2xl border-2 overflow-hidden transition-all ${activeImageIndex === idx ? 'border-[#F4C430] scale-110' : 'border-transparent opacity-50'}`}
-                        >
-                          <img src={renderImage(selectedProduct, idx)} alt="" className="w-full h-full object-contain p-2" />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Right Column: Premium Info */}
-                <div className="flex flex-col">
-                  <div className="mb-4">
-                    <span className="px-4 py-1.5 bg-[#0F172A] text-white text-[10px] font-black rounded-full uppercase tracking-[0.2em] italic">
-                      Apple {selectedProduct.category} Series
-                    </span>
-                  </div>
-                  
-                  <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] mb-4 leading-[0.9] uppercase italic tracking-tighter">
-                    {selectedProduct.name}
-                  </h2>
-
-                <div className="flex items-center gap-3 mb-8">
-  <div className="flex text-[#F4C430]">
-    {[...Array(5)].map((_, i) => (
-      <Star
-        key={i}
-        size={18}
-        fill={i < Math.floor(selectedProduct.averageRating || 0) ? "#F4C430" : "none"}
-        className={i < Math.floor(selectedProduct.averageRating || 0) ? "text-[#F4C430]" : "text-gray-300"}
-      />
-    ))}
-  </div>
-  <span className="text-xs font-black text-gray-400 italic">
-    ({selectedProduct.averageRating || 0}/5.0)
-  </span>
-</div>
-
-                  <div className="mb-10 p-6 bg-[#F8F9FA] rounded-[24px] border-l-8 border-[#F4C430] shadow-sm">
-                    <p className="text-[10px] font-black text-gray-400 uppercase mb-1 tracking-[0.2em]">Current Market Price</p>
-                    <span className="text-4xl md:text-5xl font-black text-[#0F172A] tracking-tighter">
-                      PKR {selectedProduct.price.toLocaleString()}
-                    </span>
-                  </div>
-                  
-                  {/* Laptop Layout Specs Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-                    {[
-                      { label: 'Processor', value: selectedProduct.processor, icon: <Cpu size={18}/> },
-                      { label: 'RAM', value: selectedProduct.ram, icon: <Zap size={18}/> },
-                      { label: 'Storage', value: selectedProduct.storage, icon: <HardDrive size={18}/> },
-                      { label: 'Graphics', value: selectedProduct.gpu, icon: <Monitor size={18}/> },
-                      { label: 'Security', value: 'TPM 2.0', icon: <ShieldCheck size={18}/> },
-                      { label: 'Display', value: selectedProduct.display, icon: <Box size={18}/> },
-                    ].map((spec, index) => (
-                      <div key={index} className="p-4 bg-white rounded-2xl border border-gray-100 hover:border-[#F4C430] transition-all group">
-                        <div className="text-[#0F172A] mb-2 group-hover:scale-110 transition-transform">{spec.icon}</div>
-                        <p className="text-[9px] uppercase font-black text-gray-400 tracking-widest mb-1">{spec.label}</p>
-                        <p className="text-[12px] font-black text-[#0F172A] truncate">{spec.value}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-4 mt-auto">
-                    <button 
-                      onClick={() => addToCart(selectedProduct)} 
-                      className="flex-1 py-6 bg-[#0F172A] text-white font-black rounded-2xl hover:bg-black transition-all uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 shadow-xl"
-                    >
-                      <ShoppingCart size={20} /> Add To Cart
-                    </button>
-                    <button 
-                      onClick={() => handleBuyNow(selectedProduct)} 
-                      className="flex-1 py-6 bg-gradient-to-r from-[#F4C430] to-[#d6a11e] text-[#0F172A] font-black rounded-2xl uppercase tracking-[0.2em] text-xs shadow-[0_15px_30px_rgba(244,196,48,0.3)] hover:brightness-110 transition-all flex items-center justify-center gap-3"
-                    >
-                      <CreditCard size={20} /> Buy Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-       {selectedProduct.description && (
-  <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
-    <div 
-      className="flex items-center justify-between cursor-pointer"
-      onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
-        <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
-          Product Overview
-        </p>
-      </div>
-      <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none">
-        {isDescriptionOpen ? '−' : '+'}
-      </span>
-    </div>
-
-    {isDescriptionOpen && (
-      <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3 animate-in fade-in duration-300">
-        {selectedProduct.description}
-      </p>
-    )}
-  </div>
-)}
-        <div className="mt-8">
-      <RelatedProducts
-       currentProduct={selectedProduct} 
-        allProducts={products} 
-        onSelect={(prod) => {
-          setSelectedProduct(prod);
-          setActiveImageIndex(0);
-          window.scrollTo(0, 0);
-        }}
-      />
-    </div>
+        <div className="flex flex-col lg:flex-row gap-6">
+          <aside className="w-full lg:w-[280px] bg-white rounded-2xl border border-[#E6E6E6] shadow-sm p-5 h-fit shrink-0">
+            <div className="flex justify-between items-center cursor-pointer lg:cursor-default" onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}>
+              <h2 className="text-lg font-black text-gray-800 uppercase tracking-tighter italic">Filters</h2>
+              <span className={`lg:hidden transition-transform ${isMobileFilterOpen ? 'rotate-180' : ''}`}>▼</span>
             </div>
-          </div>
-        ) : (
-          /* --- APPLE LIST VIEW WITH SIDEBAR --- */
-          <div className="flex flex-col lg:flex-row gap-8">
-            
-            {/* Improved Sidebar */}
-            <aside className="w-full lg:w-[300px] shrink-0">
-              <div className="bg-white rounded-[2.5rem] border border-[#E6E6E6] shadow-sm p-8 sticky top-6">
-                <div 
-                  className="flex justify-between items-center cursor-pointer lg:cursor-default"
-                  onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-                >
-                  <h2 className="text-xs font-black uppercase tracking-[0.3em] text-[#0F172A]">Refine Fleet</h2>
-                  <Filter size={16} className="lg:hidden text-gray-400" />
-                </div>
-
-                <div className={`space-y-10 mt-8 transition-all duration-300 ${isMobileFilterOpen ? 'block' : 'hidden lg:block'}`}>
-                  {categories.map((cat, index) => (
-                    <div key={index} className="border-b border-gray-50 pb-6 last:border-0">
-                      <div onClick={() => toggleSection(cat.title)} className="flex justify-between items-center mb-5 cursor-pointer group">
-                        <h3 className="font-black text-[#0F172A] uppercase text-[10px] tracking-[0.2em]">{cat.title}</h3>
-                        <span className={`text-[10px] text-gray-300 transition-transform ${openSections[cat.title] ? 'rotate-180' : ''}`}>▼</span>
-                      </div>
-                      <div className={`space-y-4 ${openSections[cat.title] ? 'block' : 'hidden'}`}>
-                        {cat.options.map((opt, i) => (
-                          <label key={i} className="flex items-center space-x-3 cursor-pointer group">
-                            <input 
-                              type="checkbox" 
-                              checked={selectedFilters[cat.title]?.includes(opt)}
-                              onChange={() => handleFilterChange(cat.title, opt)}
-                              className="w-4 h-4 rounded border-[#E6E6E6] accent-[#0F172A] cursor-pointer" 
-                            />
-                            <span className={`text-[11px] font-black uppercase tracking-tight transition-colors ${selectedFilters[cat.title]?.includes(opt) ? 'text-[#0F172A]' : 'text-gray-400 group-hover:text-black'}`}>
-                              {opt}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {(selectedFilters.RAM.length > 0 || selectedFilters.GPU.length > 0) && (
-                    <button 
-                      onClick={() => setSelectedFilters({RAM: [], GPU: []})}
-                      className="w-full py-4 bg-[#F8F9FA] text-[9px] font-black uppercase text-red-500 rounded-2xl hover:bg-red-50 transition-colors tracking-widest"
-                    >
-                      Reset All Filters
-                    </button>
-                  )}
-                </div>
-              </div>
-            </aside>
-
-            {/* Main Content Grid */}
-            <main className="flex-1">
-              <div className="bg-white rounded-[2rem] border border-[#E6E6E6] p-6 mb-10 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
-                <p className="text-[#0F172A] font-black text-[10px] uppercase tracking-widest italic">
-                  Inventory: {filteredAndSorted.length} Apple Units Available
-                </p>
-                <select onChange={(e) => setSortBy(e.target.value)} className="border-2 border-[#F8F9FA] rounded-xl px-5 py-3 bg-[#F8F9FA] text-[10px] font-black uppercase tracking-widest outline-none focus:border-[#F4C430] cursor-pointer">
-                  <option value="default">Sort by: Default</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="name">Alphabetical (A-Z)</option>
-                </select>
-              </div>
-
-              {filteredAndSorted.length === 0 ? (
-                <div className="text-center py-24 bg-white rounded-[3rem] border border-[#E6E6E6]">
-                  <p className="text-gray-300 font-black uppercase tracking-[0.2em] italic">No Match Found in Apple Repository</p>
-                </div>
-              ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {currentProducts.map((product) => (
-                <div 
-                  key={product._id} 
-                  className="bg-white rounded-2xl border border-[#E6E6E6] p-5 hover:shadow-2xl transition-all flex flex-col group relative overflow-hidden"
-                  style={{ boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
-                >
-                  {/* Clickable Area */}
-                  <div 
-                    className="cursor-pointer" 
-                    onClick={() => { setSelectedProduct(product); setActiveImageIndex(0); window.scrollTo(0,0); }}
-                  >
-                    {/* Image Container with subtle gray bg like your screenshot */}
-                    <div className="h-44 flex items-center justify-center mb-5 bg-[#F8F9FA] rounded-2xl overflow-hidden p-6">
-                      <img 
-                        src={renderImage(product)} 
-                        alt={product.name} 
-                        className="max-h-full object-contain group-hover:scale-110 transition-transform duration-500" 
-                      />
-                    </div>
-            
-                    {/* Product Name - Bold & Dark like your UI */}
-                    <h3 className="text-lg font-black text-[#0F172A] mb-1 line-clamp-1 group-hover:text-[#F4C430] transition-colors uppercase italic tracking-tighter">
-                      {product.name}
-                    </h3>
-            
-                    {/* --- RATING (Golden/Yellow theme from your screenshots) --- */}
-                    <div className="flex items-center gap-1.5 mb-3">
-                      <div className="flex text-[#F4C430]">
-                        {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            size={14} 
-                            fill={i < Math.floor(product.averageRating || 0) ? "#F4C430" : "none"} 
-                            className={i < Math.floor(product.averageRating || 0) ? "text-[#F4C430]" : "text-gray-300"}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-[11px] font-bold text-gray-400">
-                         {product.averageRating || 0}
-                      </span>
-                    </div>
-            
-                    {/* Quick Specs - Blue icons to match primary buttons */}
-                    <div className="flex gap-4 mb-4 text-[11px] text-gray-500 font-bold uppercase tracking-tight">
-                      <div className="flex items-center gap-1.5">
-                        <Cpu size={14} className="text-[#0F172A]" /> 
-                        {product.processor ? product.processor.split(' ')[0] : 'N/A'}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Zap size={14} className="text-[#0F172A]" /> 
-                        {product.ram}
-                      </div>
-                    </div>
-            
-                    {/* Price - Bold and Large */}
-                    <div className="mb-5">
-                      <span className="text-xl font-black text-[#0F172A]">
-                        PKR {product.price.toLocaleString()}
-                      </span>
-                    </div>
+            <div className={`space-y-6 mt-4 lg:mt-6 ${isMobileFilterOpen ? 'block' : 'hidden lg:block'}`}>
+              {categories.map((cat, index) => (
+                <div key={index} className="border-b border-gray-100 pb-4 last:border-0">
+                  <div onClick={() => toggleSection(cat.title)} className="flex justify-between items-center mb-4 cursor-pointer group">
+                    <h3 className="font-bold text-gray-800 uppercase text-[12px] tracking-wider">{cat.title}</h3>
+                    <span className={`text-[10px] text-gray-400 transition-transform ${openSections[cat.title] ? 'rotate-180' : ''}`}>▼</span>
                   </div>
-            
-                  {/* --- THEMED BUTTONS (Matching your uploaded screenshots) --- */}
-                  <div className="mt-auto flex flex-col gap-2.5">
-                    {/* Dark Navy Button (Add to Cart theme) */}
-                    <button 
-                      onClick={() => addToCart(product)} 
-                      className="w-full py-3 bg-[#0F172A] text-white text-[11px] font-black rounded-xl hover:opacity-90 transition-all uppercase tracking-[0.15em] flex items-center justify-center gap-2"
-                    >
-                      <ShoppingCart size={16} /> Add to Cart
-                    </button>
-                    
-                    {/* Golden/Yellow Gradient Button (View Details/Buy Now theme) */}
-                    <button 
-                      onClick={() => { setSelectedProduct(product); setActiveImageIndex(0); window.scrollTo(0,0); }} 
-                      className="w-full py-3 bg-gradient-to-r from-[#F4C430] to-[#E2B020] text-[#0F172A] text-[11px] font-black rounded-xl border border-[#D4A017] text-center uppercase tracking-[0.15em] shadow-md hover:brightness-105 transition-all"
-                    >
-                      View Details
-                    </button>
+                  <div className={`space-y-3 overflow-hidden transition-all ${openSections[cat.title] ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'}`}>
+                    {cat.options.map((opt, i) => (
+                      <label key={i} className="flex items-center space-x-3 cursor-pointer group">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedFilters[cat.title].includes(opt)}
+                          onChange={() => handleFilterChange(cat.title, opt)}
+                          className="w-4 h-4 rounded border-[#E6E6E6] accent-[#F4C430] cursor-pointer" 
+                        />
+                        <span className={`text-sm transition-colors ${selectedFilters[cat.title].includes(opt) ? 'text-black font-bold' : 'text-gray-600'}`}>{opt}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               ))}
             </div>
-              )}
+          </aside>
 
-              {/* Pagination */}
-            {totalPages > 1 && (
-  <div className="mt-8 flex justify-center items-center flex-wrap gap-2 md:gap-3 px-2">
+          <main className="flex-1">
+            <div className="bg-white rounded-2xl border border-[#E6E6E6] p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-gray-700 font-semibold text-xs sm:text-sm">
+                Showing {filteredAndSortedProducts.length > 0 ? indexOfFirstItem + 1 : 0}-{Math.min(indexOfLastItem, filteredAndSortedProducts.length)} of {filteredAndSortedProducts.length} Apple Laptops
+              </p>
+              <select onChange={(e) => {setSortBy(e.target.value); setCurrentPage(1);}} className="w-full md:w-auto border border-[#E6E6E6] rounded-lg px-4 py-1.5 bg-white text-sm outline-none focus:border-[#F4C430] cursor-pointer font-bold">
+                <option value="default">Default Sorting</option>
+                <option value="popularity">Top Performance</option>
+                <option value="name">Name (A-Z)</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+              </select>
+            </div>
 
-    {Array.from({ length: totalPages }, (_, i) => i + 1)
-      .filter((page) => {
-        return (
-          page === 1 ||
-          page === totalPages ||
-          Math.abs(page - currentPage) <= 1
-        );
-      })
-      .map((page, index, arr) => {
-        const prevPage = arr[index - 1];
+            {currentProducts.length === 0 ? (
+              <div className="text-center py-12 text-gray-500 font-bold bg-white rounded-2xl border border-[#E6E6E6]">
+                No Apple laptops matching your configuration found.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {currentProducts.map((product) => (
+                  <div 
+                    key={product._id} 
+                    className="bg-white rounded-2xl border border-[#E6E6E6] p-5 hover:shadow-2xl transition-all flex flex-col group relative overflow-hidden"
+                    style={{ boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
+                  >
+                    <div className="cursor-pointer" onClick={() => { navigate(`/product/${product._id}`); }}>
+                      <div className="h-44 flex items-center justify-center mb-5 bg-[#F8F9FA] rounded-2xl overflow-hidden p-6">
+                        <img
+                          src={renderImage(product)}
+                          alt={product.name}
+                          loading="lazy"
+                          decoding="async"
+                          className="max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
 
-        return (
-          <React.Fragment key={page}>
-            
-            {/* DOTS */}
-            {prevPage && page - prevPage > 1 && (
-              <span className="px-2 text-gray-400">...</span>
+                      <h3 className="text-lg font-black text-[#0F172A] mb-1 line-clamp-1 group-hover:text-[#F4C430] transition-colors uppercase italic tracking-tighter">
+                        {product.name}
+                      </h3>
+
+                      <div className="flex items-center gap-1.5 mb-3">
+                        <div className="flex text-[#F4C430]">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={14} fill={i < Math.floor(product.averageRating || 0) ? "#F4C430" : "none"} className={i < Math.floor(product.averageRating || 0) ? "text-[#F4C430]" : "text-gray-300"} />
+                          ))}
+                        </div>
+                        <span className="text-[11px] font-bold text-gray-400">{product.averageRating || 0}</span>
+                      </div>
+
+                      <div className="flex gap-4 mb-4 text-[11px] text-gray-500 font-bold uppercase tracking-tight">
+                        <div className="flex items-center gap-1.5">
+                          <Cpu size={14} className="text-[#0F172A]" /> {product.processor ? product.processor.split(' ')[0] : 'N/A'}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Zap size={14} className="text-[#0F172A]" /> {product.ram}
+                        </div>
+                      </div>
+
+                      <div className="mb-5">
+                        <span className="text-xl font-black text-[#0F172A]">
+                          PKR {product.price ? product.price.toLocaleString() : 0}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto flex flex-col gap-2.5">
+                      <button onClick={() => addToCart(product)} className="w-full py-3 bg-[#0F172A] text-white text-[11px] font-black rounded-xl hover:opacity-90 transition-all uppercase tracking-[0.15em] flex items-center justify-center gap-2">
+                        <ShoppingCart size={16} /> Add to Cart
+                      </button>
+                      <button onClick={() => { navigate(`/product/${product._id}`); }} className="w-full py-3 bg-gradient-to-r from-[#F4C430] to-[#E2B020] text-[#0F172A] text-[11px] font-black rounded-xl border border-[#D4A017] text-center uppercase tracking-[0.15em] shadow-md hover:brightness-105 transition-all">
+                        View Specs
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
 
-            {/* BUTTON */}
-            <button
-              onClick={() => {
-                setCurrentPage(page);
-                window.scrollTo(0, 0);
-              }}
-              className={`
-                min-w-[32px] h-8 px-2 text-sm md:w-10 md:h-10 md:text-base
-                rounded-md md:rounded-lg font-semibold transition-all shadow-sm
-                ${currentPage === page
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-white border border-[#E6E6E6] text-gray-600 hover:border-blue-600'}
-              `}
-            >
-              {page}
-            </button>
-
-          </React.Fragment>
-        );
-      })}
-
-  </div>
-)}
-            </main>
-          </div>
-        )}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center items-center flex-wrap gap-2 md:gap-3 px-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                  .map((page, index, arr) => {
+                    const prevPage = arr[index - 1];
+                    return (
+                      <React.Fragment key={page}>
+                        {prevPage && page - prevPage > 1 && <span className="px-2 text-gray-400">...</span>}
+                        <button
+                          onClick={() => { setCurrentPage(page); window.scrollTo(0, 0); }}
+                          className={`min-w-[32px] h-8 px-2 text-sm md:w-10 md:h-10 md:text-base rounded-md md:rounded-lg font-semibold transition-all shadow-sm ${currentPage === page ? 'bg-slate-900 text-white' : 'bg-white border border-[#E6E6E6] text-gray-600 hover:border-blue-600'}`}
+                        >
+                          {page}
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
+              </div>
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );

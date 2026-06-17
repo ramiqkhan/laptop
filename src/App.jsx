@@ -37,6 +37,7 @@ import WhatsAppFloatingButton from './components/whatsapp'
 import WorkStation from './pages/WorkStation'
 import SearchPage from './pages/SearchPage'
 import NewProductsPage from './pages/Newpage'
+import FeaturedProductDetails from './pages/FeaturedProductDetails'
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -78,7 +79,7 @@ function App() {
               <Route path="/cart" element={<Cart />} />
               <Route path="/compare" element={<Compare />} />
               <Route path="/product/:id" element={<ProductDetails />} />
-              
+              <Route path="/featured-product/:id" element={<FeaturedProductDetails />} />
               {/* Deals Page */}
               <Route path="/deals" element={<Deals />} />
               <Route path="/workstation" element={<WorkStation />} />

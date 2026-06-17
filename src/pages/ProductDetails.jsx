@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import lap1 from "../assets/imgs/brand1.png";
 import RelatedProducts from "../components/RelatedProducts";
+import ProductReviews from "../components/ProductReviews";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -16,7 +17,7 @@ const ProductDetails = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0); // Image gallery selector state
 const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
-
+const [isReviewsOpen, setIsReviewsOpen] = useState(false);
   // Fallback API if environment variable isn't fully ready
   const API = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
 
@@ -280,6 +281,34 @@ useEffect(() => {
     )}
   </div>
 )}
+{/* Collapsible Reviews Accordion Section */}
+<div className="mb-2 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+  {/* Header / Click Trigger */}
+  <div 
+    className="flex items-center justify-between cursor-pointer group"
+    onClick={() => setIsReviewsOpen(!isReviewsOpen)} // Make sure to add const [isReviewsOpen, setIsReviewsOpen] = useState(false); at the top of your file!
+  >
+    <div className="flex items-center gap-2 mb-2">
+      <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+      <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
+        Customer Reviews
+      </p>
+    </div>
+    <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none transition-transform duration-300">
+      {isReviewsOpen ? '−' : '+'}
+    </span>
+  </div>
+
+  {/* Collapsible Content */}
+  {isReviewsOpen && (
+    <div className="pl-3 animate-in fade-in duration-300">
+      <ProductReviews 
+        productItemId={product._id || id} 
+        onModel={product.onModel || "Product"} 
+      />
+    </div>
+  )}
+</div>
         </div>
 
         {/* RELATED PRODUCTS SECTION */}

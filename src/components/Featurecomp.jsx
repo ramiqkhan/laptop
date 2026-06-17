@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // FIXED: Navigation import kiya
 import { Star, ShoppingCart, Loader2, Cpu, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const FeaturedProducts = ({ setSelectedProduct }) => {
+const FeaturedProducts = () => { // FIXED: Props se setSelectedProduct hata diya
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndexes, setCurrentImageIndexes] = useState({});
   const sliderRef = useRef(null);
+  
+  const navigate = useNavigate(); // FIXED: Navigation initialize kiya
 
   const API_URL = `${import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app"}/api/featured-products`;
 
@@ -135,7 +138,7 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
         {/* --- MAIN SLIDER FRAME WRAPPER --- */}
         <div className="relative group/mainSlider w-full">
           
-          {/* Left Floating Button - Hidden on mobile viewports */}
+          {/* Left Floating Button */}
           {products.length > 0 && (
             <button 
               onClick={scrollLeft}
@@ -145,7 +148,7 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
             </button>
           )}
 
-          {/* Right Floating Button - Hidden on mobile viewports */}
+          {/* Right Floating Button */}
           {products.length > 0 && (
             <button 
               onClick={scrollRight}
@@ -155,7 +158,7 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
             </button>
           )}
 
-          {/* --- SLIDER CONTAINER WRAPPER WITH SNAP ALIGNMENT CORRECTIONS --- */}
+          {/* --- SLIDER CONTAINER --- */}
           <div 
             ref={sliderRef}
             className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 pt-2 px-6 sm:px-1 scroll-smooth justify-start"
@@ -178,7 +181,6 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
               return (
                 <div 
                   key={product._id} 
-                  // FIXED: Added snap-center and responsive positioning properties
                   className="w-[260px] sm:w-[310px] shrink-0 snap-center bg-white p-5 rounded-2xl border border-[#E6E6E6] hover:shadow-2xl transition-all duration-500 flex flex-col group relative overflow-hidden mx-auto sm:mx-0"
                   style={{ boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
                 >
@@ -201,7 +203,11 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
                   {/* Details Trigger Info Content Container */}
                   <div 
                     className="cursor-pointer" 
-                    onClick={() => { setSelectedProduct(product); window.scrollTo(0,0); }}
+                    onClick={() => { 
+                      // FIXED: Route explicitly shifted to featured domain routing
+                      navigate(`/featured-product/${product._id}`); 
+                      window.scrollTo(0, 0);
+                    }}
                   >
                     <h3 className="text-base font-black text-[#0F172A] mb-1 line-clamp-1 group-hover:text-[#F4C430] transition-colors uppercase italic tracking-tighter">
                       {product.name}
@@ -218,6 +224,7 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
 
                     <div className="flex gap-4 mb-4 text-[10px] text-gray-500 font-bold uppercase tracking-tight">
                       <div className="flex items-center gap-1.5">
+                        <img />
                         <Cpu size={14} className="text-[#0F172A]" /> 
                         {product.ram || 'N/A'}
                       </div>
@@ -240,8 +247,13 @@ const FeaturedProducts = ({ setSelectedProduct }) => {
                     >
                       <ShoppingCart size={16} /> Add to Cart
                     </button>
+                    
                     <button 
-                      onClick={() => { setSelectedProduct(product); window.scrollTo(0,0); }}
+                      onClick={() => { 
+                        // FIXED: Details button redirects to the dedicated featured details route
+                        navigate(`/featured-product/${product._id}`); 
+                        window.scrollTo(0, 0);
+                      }}
                       className="w-full py-3 bg-gradient-to-r from-[#F4C430] to-[#E2B020] text-[#0F172A] text-[11px] font-black rounded-xl border border-[#D4A017] text-center uppercase tracking-[0.15em] shadow-md hover:brightness-105 transition-all"
                     >
                       View Details
