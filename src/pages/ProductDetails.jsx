@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Heart, CheckCircle2, ShoppingCart, CreditCard, Star } from "lucide-react";
 import {
-  Cpu, Zap, Monitor, HardDrive, Box, ShieldCheck
+  Cpu, Zap, Monitor, HardDrive, Box, ShieldCheck, ShieldAlert
 } from "lucide-react";
 import lap1 from "../assets/imgs/brand1.png";
 import RelatedProducts from "../components/RelatedProducts";
@@ -16,8 +16,9 @@ const ProductDetails = () => {
   const [related, setRelated] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0); // Image gallery selector state
-const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
-const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
+  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+  
   // Fallback API if environment variable isn't fully ready
   const API = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
 
@@ -98,34 +99,31 @@ const [isReviewsOpen, setIsReviewsOpen] = useState(false);
   }, [id, API]);
 
   // Fetch related catalog products
- // Fetch related catalog products
-useEffect(() => {
-  // Only fetch if we have the current product's category
-  if (!product || !product.category) return;
+  useEffect(() => {
+    if (!product || !product.category) return;
 
-  const fetchRelated = async () => {
-    try {
-      const res = await fetch(`${API}/api/products`);
-      const data = await res.json();
+    const fetchRelated = async () => {
+      try {
+        const res = await fetch(`${API}/api/products`);
+        const data = await res.json();
 
-      if (Array.isArray(data)) {
-        // Filter by Category AND exclude the current product
-        const filtered = data
-          .filter((p) => 
-            p.category?.toLowerCase() === product.category.toLowerCase() && 
-            p._id !== id
-          )
-          .slice(0, 4);
-        
-        setRelated(filtered);
+        if (Array.isArray(data)) {
+          const filtered = data
+            .filter((p) => 
+              p.category?.toLowerCase() === product.category.toLowerCase() && 
+              p._id !== id
+            )
+            .slice(0, 4);
+          
+          setRelated(filtered);
+        }
+      } catch (err) {
+        console.log("Error fetching related products:", err);
       }
-    } catch (err) {
-      console.log("Error fetching related products:", err);
-    }
-  };
+    };
 
-  fetchRelated();
-}, [id, product, API]); // Added 'product' as a dependency
+    fetchRelated();
+  }, [id, product, API]);
 
   if (!product) {
     return (
@@ -216,7 +214,7 @@ useEffect(() => {
                 </span>
               </div>
               
-              {/* Specs Grid */}
+              {/* Specs Grid with Integrated Warranty Display */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
                 {[
                   { label: 'Processor', value: product.processor, icon: <Cpu size={16}/> },
@@ -225,11 +223,21 @@ useEffect(() => {
                   { label: 'Storage', value: product.storage, icon: <HardDrive size={16}/> },
                   { label: 'Display', value: product.display || 'Full HD', icon: <Box size={16}/> },
                   { label: 'OS', value: product.os || 'Windows 11', icon: <ShieldCheck size={16}/> },
+                  { label: 'Warranty Policy', value: product.warranty, icon: <ShieldAlert size={16} className="text-blue-600 group-hover:animate-pulse"/>, isWarranty: true },
                 ].map((spec, index) => (
-                  <div key={index} className="p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:border-[#F4C430] transition-colors group">
+                  <div 
+                    key={index} 
+                    className={`p-3 rounded-xl border shadow-sm transition-all group ${
+                      spec.isWarranty && spec.value 
+                        ? 'bg-blue-50/40 border-blue-100 hover:border-blue-400 col-span-1 sm:col-span-2' 
+                        : 'bg-white border-gray-100 hover:border-[#F4C430]'
+                    }`}
+                  >
                     <div className="text-[#0F172A] mb-1 group-hover:scale-110 transition-transform">{spec.icon}</div>
-                    <p className="text-[9px] uppercase font-black text-gray-400 tracking-tighter mb-0.5">{spec.label}</p>
-                    <p className="text-[11px] font-bold text-slate-800 line-clamp-1">{spec.value || "Standard"}</p>
+                    <p className={`text-[9px] uppercase font-black tracking-tighter mb-0.5 ${spec.isWarranty ? 'text-blue-500' : 'text-gray-400'}`}>{spec.label}</p>
+                    <p className={`text-[11px] font-bold line-clamp-1 ${spec.isWarranty ? 'text-blue-700' : 'text-slate-800'}`}>
+                      {spec.value || (spec.isWarranty ? "Check Description / No Direct Warranty" : "Standard")}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -255,100 +263,66 @@ useEffect(() => {
           </div>
 
           {/* Description Overview Render */}
-     {product?.description && (
-  <div className="mb-2 mt-10 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
-    {/* Header / Click Trigger */}
-    <div 
-      className="flex items-center justify-between cursor-pointer group"
-      onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
-        <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
-          Product Overview
-        </p>
-      </div>
-      <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none transition-transform duration-300">
-        {isDescriptionOpen ? '−' : '+'}
-      </span>
-    </div>
+          {product?.description && (
+            <div className="mb-2 mt-10 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+              <div 
+                className="flex items-center justify-between cursor-pointer group"
+                onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+                  <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                    Product Overview
+                  </p>
+                </div>
+                <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none transition-transform duration-300">
+                  {isDescriptionOpen ? '−' : '+'}
+                </span>
+              </div>
 
-    {/* Collapsible Content */}
-    {isDescriptionOpen && (
-      <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3 animate-in fade-in duration-300">
-        {product.description}
-      </p>
-    )}
-  </div>
-)}
-{/* Collapsible Reviews Accordion Section */}
-<div className="mb-2 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
-  {/* Header / Click Trigger */}
-  <div 
-    className="flex items-center justify-between cursor-pointer group"
-    onClick={() => setIsReviewsOpen(!isReviewsOpen)} // Make sure to add const [isReviewsOpen, setIsReviewsOpen] = useState(false); at the top of your file!
-  >
-    <div className="flex items-center gap-2 mb-2">
-      <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
-      <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
-        Customer Reviews
-      </p>
-    </div>
-    <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none transition-transform duration-300">
-      {isReviewsOpen ? '−' : '+'}
-    </span>
-  </div>
+              {isDescriptionOpen && (
+                <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3 animate-in fade-in duration-300">
+                  {product.description}
+                </p>
+              )}
+            </div>
+          )}
 
-  {/* Collapsible Content */}
-  {isReviewsOpen && (
-    <div className="pl-3 animate-in fade-in duration-300">
-      <ProductReviews 
-        productItemId={product._id || id} 
-        onModel={product.onModel || "Product"} 
-      />
-    </div>
-  )}
-</div>
+          {/* Collapsible Reviews Accordion Section */}
+          <div className="mb-2 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+            <div 
+              className="flex items-center justify-between cursor-pointer group"
+              onClick={() => setIsReviewsOpen(!isReviewsOpen)}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+                <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                  Customer Reviews
+                </p>
+              </div>
+              <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none transition-transform duration-300">
+                {isReviewsOpen ? '−' : '+'}
+              </span>
+            </div>
+
+            {isReviewsOpen && (
+              <div className="pl-3 animate-in fade-in duration-300">
+                <ProductReviews 
+                  productItemId={product._id || id} 
+                  onModel={product.onModel || "Product"} 
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* RELATED PRODUCTS SECTION */}
-        {/* <div className="mt-12 sm:mt-16">
-          <h2 className="text-lg sm:text-xl font-bold text-slate-800 mb-4 sm:mb-5">
-            Related Products
-          </h2>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {related.map((item) => (
-              <Link
-                to={`/product/${item._id}`}
-                key={item._id}
-                className="bg-white p-3 sm:p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:border-[#F4C430] transition flex flex-col justify-between"
-              >
-                <div>
-                  <img
-                    src={item.images?.[0] || lap1}
-                    alt={item.name}
-                    className="h-20 sm:h-28 mx-auto object-contain"
-                  />
-                  <h3 className="text-xs sm:text-sm font-bold mt-2 text-slate-800 line-clamp-2">
-                    {item.name}
-                  </h3>
-                </div>
-                <p className="text-[#D4AF37] font-bold text-xs sm:text-sm mt-2">
-                  PKR {item.price?.toLocaleString()}
-                </p>
-              </Link>
-            ))}
-          </div>
-        </div> */}
-{/* RELATED PRODUCTS SECTION */}
-{/* RELATED PRODUCTS SECTION */}
-<div className="mt-12 sm:mt-16">
-  <RelatedProducts 
-    currentProduct={product} 
-    allProducts={related} // Pass the 'related' state here
-  />
-</div>
+        <div className="mt-12 sm:mt-16">
+          <RelatedProducts 
+            currentProduct={product} 
+            allProducts={related} 
+          />
+        </div>
       </div>
     </div>
   );

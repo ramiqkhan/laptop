@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Star, ShoppingCart, Loader2, Cpu, Zap, ArrowLeft, 
-  ShieldCheck, Truck, CreditCard, Monitor, HardDrive, Box 
+  ShieldCheck, ShieldAlert, Truck, CreditCard, Monitor, HardDrive, Box 
 } from 'lucide-react';
 import ProductReviews from '../components/ProductReviews'; 
 import RelatedProducts from '../components/RelatedProducts'; // ✅ ADDED: Imported Related Products Component
@@ -181,7 +181,6 @@ const FeaturedProductDetails = () => {
                 />
               </div>
 
-              {/* Gallery Thumbnails array mapping */}
               {images.length > 1 && (
                 <div className="flex flex-wrap gap-3 justify-center py-1">
                   {images.map((img, index) => (
@@ -278,6 +277,18 @@ const FeaturedProductDetails = () => {
                       <p className="text-xs font-black uppercase tracking-tight text-[#0F172A] mt-0.5">{product.os || "Win 11"}</p>
                     </div>
                   </div>
+
+                  {/* WARRANTY POLICY CARD - Formatted Full-width Option */}
+                  <div className="p-3.5 bg-blue-50/40 border border-blue-100 rounded-xl flex items-start gap-3 shadow-sm col-span-1 sm:col-span-2 group hover:border-blue-300 transition-all">
+                    <div className="text-blue-600 mt-0.5"><ShieldAlert size={16} className="group-hover:animate-pulse" /></div>
+                    <div>
+                      <p className="text-[9px] font-black text-blue-500 uppercase tracking-tight">Warranty Policy</p>
+                      <p className="text-xs font-black uppercase tracking-tight text-blue-700 mt-0.5">
+                        {product.warranty || "NO Warranty"}
+                      </p>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
@@ -353,7 +364,7 @@ const FeaturedProductDetails = () => {
             )}
           </div>
 
-          {/* ✅ ADDED: Related Products Section integration */}
+          {/* Related Products Section integration */}
           <div className="mt-8 pt-4 border-t border-gray-100">
             <RelatedProducts 
               currentProduct={product} 

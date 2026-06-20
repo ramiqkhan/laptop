@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   X, Cpu, Layers, HardDrive, Monitor, CheckCircle, Copy, 
-  ArrowRight, ArrowLeft, Star, ShieldCheck, Zap, Box, ShoppingCart, CreditCard 
+  ArrowRight, ArrowLeft, Star, ShieldCheck, ShieldAlert, Zap, Box, ShoppingCart, CreditCard 
 } from 'lucide-react';
 
 const Deals = () => {
@@ -13,47 +13,48 @@ const Deals = () => {
   const [selectedDeal, setSelectedDeal] = useState(null); 
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 12, mins: 45, secs: 30 });
-const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
-const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
+  const BASE_URL = import.meta.env.VITE_API_URL || "https://laptopbackend-seven.vercel.app";
 
 
-// --- FETCH GAMING PRODUCTS ---
-const fetchDeals = async () => {
-  setLoading(true);
-  try {
-    const url = `${BASE_URL}/api/deals`; // or `deals` if backend has a deals endpoint
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-    const data = await response.json();
-    setDealProducts(data);
-  } catch (err) {
-    console.error("Error fetching deals:", err);
-  } finally {
-    setLoading(false);
-  }
-};
-const renderImage = (productOrImages, index = 0) => {
-  // Handle both product object or array of images
-  let images = [];
+  // --- FETCH GAMING PRODUCTS ---
+  const fetchDeals = async () => {
+    setLoading(true);
+    try {
+      const url = `${BASE_URL}/api/deals`; // or `deals` if backend has a deals endpoint
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const data = await response.json();
+      setDealProducts(data);
+    } catch (err) {
+      console.error("Error fetching deals:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // If it’s a product object with .images
-  if (productOrImages?.images) {
-    images = productOrImages.images;
-  } 
-  // If it’s already an array of images
-  else if (Array.isArray(productOrImages)) {
-    images = productOrImages;
-  }
+  const renderImage = (productOrImages, index = 0) => {
+    // Handle both product object or array of images
+    let images = [];
 
-  if (!images || images.length === 0) {
-    return "https://via.placeholder.com/150?text=No+Image";
-  }
+    // If it’s a product object with .images
+    if (productOrImages?.images) {
+      images = productOrImages.images;
+    } 
+    // If it’s already an array of images
+    else if (Array.isArray(productOrImages)) {
+      images = productOrImages;
+    }
 
-  const image = images[index];
+    if (!images || images.length === 0) {
+      return "https://via.placeholder.com/150?text=No+Image";
+    }
 
-  // image might be string URL or object with .url
-  return image?.url || image;
-};
+    const image = images[index];
+
+    // image might be string URL or object with .url
+    return image?.url || image;
+  };
 
   const handleAddToCart = (product, silent = false) => {
     const savedCart = localStorage.getItem('globalCart');
@@ -181,7 +182,17 @@ const renderImage = (productOrImages, index = 0) => {
                   <DetailSpec icon={<HardDrive size={16} />} label="Storage" value={selectedDeal.storage} />
                   <DetailSpec icon={<Zap size={16} />} label="Graphics" value={selectedDeal.graphics || "Dedicated"} />
                   <DetailSpec icon={<Monitor size={16} />} label="Display" value={selectedDeal.display || "15.6\" FHD"} />
-                  <DetailSpec icon={<ShieldCheck size={16} />} label="Warranty" value="1 Year" />
+                  <DetailSpec icon={<ShieldCheck size={16} />} label="OS" value={selectedDeal.os || "Windows 11"} />
+                  
+                  {/* WARRANTY POLICY CARD - Formatted Full-width Grid Element */}
+                  <div className="sm:col-span-2">
+                    <DetailSpec 
+                      icon={<ShieldAlert size={16} />} 
+                      label="Warranty Policy" 
+                      value={selectedDeal.warranty || "no warranty"} 
+                      isWarranty={true}
+                    />
+                  </div>
                 </div>
 
                 <div 
@@ -210,63 +221,63 @@ const renderImage = (productOrImages, index = 0) => {
                 </div>
               </div>
             </div>
-                      {selectedDeal?.description && (
-  <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
-    <div 
-      className="flex items-center justify-between cursor-pointer"
-      onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
-        <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Product Overview</p>
-      </div>
-      <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none">
-        {isDescriptionOpen ? '−' : '+'}
-      </span>
-    </div>
-    
-    {isDescriptionOpen && (
-      <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3 animate-in fade-in duration-300">
-        {selectedDeal.description}
-      </p>
-    )}
-  </div>
-)}
-      
+            {selectedDeal?.description && (
+              <div className="mb-6 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+                <div 
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#F4C430]" />
+                    <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Product Overview</p>
+                  </div>
+                  <span className="text-slate-500 font-black text-lg mb-2 mr-1 select-none">
+                    {isDescriptionOpen ? '−' : '+'}
+                  </span>
+                </div>
+                
+                {isDescriptionOpen && (
+                  <p className="text-[13px] text-slate-600 font-medium leading-relaxed break-words whitespace-pre-line tracking-tight pl-3 animate-in fade-in duration-300">
+                    {selectedDeal.description}
+                  </p>
+                )}
+              </div>
+            )}
+            
           </div>
         </div>
       ) : (
         <>
           {/* Deals Banner Section */}
-   <div className="bg-[#0F172A] text-white py-16 md:py-28 px-4 relative overflow-hidden">
-  {/* Decorative background element */}
-  <div className="absolute top-0 right-0 w-1/2 md:w-1/3 h-full bg-blue-600/10 skew-x-12 translate-x-20"></div>
-  
-  <div className="max-w-[1400px] mx-auto text-center relative z-10">
-    <span className="text-[#F4C430] font-black text-[10px] md:text-[12px] uppercase tracking-[0.3em] md:tracking-[0.5em] mb-4 block">
-      Exclusive Flash Sales
-    </span>
-    
-    {/* Font size adjusted for mobile (4xl) to desktop (9xl) */}
-    <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter italic uppercase leading-[0.8]">
-      FLASH <span className="text-[#F4C430]">DEALS</span>
-    </h1>
-    
-    {/* Timer container - adjusted grid/gap for mobile */}
-    <div className="flex justify-center gap-2 md:gap-6 mt-8 md:mt-12">
-      {[{ label: 'Hours', val: timeLeft.hours }, { label: 'Min', val: timeLeft.mins }, { label: 'Sec', val: timeLeft.secs }].map((unit, i) => (
-        <div key={i} className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] min-w-[80px] md:min-w-[120px] shadow-2xl">
-          <div className="text-2xl sm:text-4xl md:text-5xl font-black text-[#F4C430] italic">
-            {unit.val < 10 ? `0${unit.val}` : unit.val}
+          <div className="bg-[#0F172A] text-white py-16 md:py-28 px-4 relative overflow-hidden">
+            {/* Decorative background element */}
+            <div className="absolute top-0 right-0 w-1/2 md:w-1/3 h-full bg-blue-600/10 skew-x-12 translate-x-20"></div>
+            
+            <div className="max-w-[1400px] mx-auto text-center relative z-10">
+              <span className="text-[#F4C430] font-black text-[10px] md:text-[12px] uppercase tracking-[0.3em] md:tracking-[0.5em] mb-4 block">
+                Exclusive Flash Sales
+              </span>
+              
+              {/* Font size adjusted for mobile (4xl) to desktop (9xl) */}
+              <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter italic uppercase leading-[0.8]">
+                FLASH <span className="text-[#F4C430]">DEALS</span>
+              </h1>
+              
+              {/* Timer container - adjusted grid/gap for mobile */}
+              <div className="flex justify-center gap-2 md:gap-6 mt-8 md:mt-12">
+                {[{ label: 'Hours', val: timeLeft.hours }, { label: 'Min', val: timeLeft.mins }, { label: 'Sec', val: timeLeft.secs }].map((unit, i) => (
+                  <div key={i} className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] min-w-[80px] md:min-w-[120px] shadow-2xl">
+                    <div className="text-2xl sm:text-4xl md:text-5xl font-black text-[#F4C430] italic">
+                      {unit.val < 10 ? `0${unit.val}` : unit.val}
+                    </div>
+                    <div className="text-[8px] md:text-[10px] uppercase tracking-[0.15em] md:tracking-[0.2em] text-gray-400 font-black mt-1 md:mt-2">
+                      {unit.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="text-[8px] md:text-[10px] uppercase tracking-[0.15em] md:tracking-[0.2em] text-gray-400 font-black mt-1 md:mt-2">
-            {unit.label}
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
 
           <div className="max-w-[1400px] mx-auto px-6 py-20">
             {loading ? (
@@ -323,13 +334,28 @@ const renderImage = (productOrImages, index = 0) => {
   );
 };
 
-const DetailSpec = ({ icon, label, value }) => (
-  <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-[#F4C430] transition-all group">
-    <div className="text-[#0F172A] mb-2 group-hover:scale-110 transition-transform">
+const DetailSpec = ({ icon, label, value, isWarranty = false }) => (
+  <div className={`p-4 rounded-2xl border transition-all group shadow-sm 
+    ${isWarranty 
+      ? 'bg-blue-50/40 border-blue-100 hover:border-blue-300' 
+      : 'bg-white border-slate-100 hover:border-[#F4C430]'
+    }`}
+  >
+    <div className={`mb-2 group-hover:scale-110 transition-transform 
+      ${isWarranty ? 'text-blue-600' : 'text-[#0F172A]'}`}
+    >
       {icon}
     </div>
-    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
-    <p className="text-[11px] font-black text-slate-800 uppercase italic line-clamp-1">{value}</p>
+    <p className={`text-[9px] font-black uppercase tracking-widest mb-1 
+      ${isWarranty ? 'text-blue-500' : 'text-slate-400'}`}
+    >
+      {label}
+    </p>
+    <p className={`text-[11px] font-black uppercase italic 
+      ${isWarranty ? 'text-blue-700' : 'text-slate-800 line-clamp-1'}`}
+    >
+      {value}
+    </p>
   </div>
 );
 
