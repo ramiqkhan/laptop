@@ -16,12 +16,15 @@ import heroLaptop from '../assets/imgs/hero-1bg.png';
 import FeaturedProducts from '../components/Featurecomp';
 import banner1 from '../assets/banner.jpeg';
 import banner2 from '../assets/banners.jpeg';
+import banner3 from '../assets/bannerss.jpeg';
+
 import LaptopPages from '../components/laptopbanner';
 import GamingBanner from '../components/gamingbanner';
 import WorkBanner from '../components/workbanner';
 import NewBanner from '../components/neworkbanner';
 import ProductReviews from '../components/ProductReviews';
 
+const images = [banner1, banner2, banner3];
 const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImgIndex, setActiveImgIndex] = useState(0);
@@ -29,18 +32,23 @@ const Home = () => {
   const [currentIndex, setCurrentIndex] = useState(0); 
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const images = [banner1, banner2];
+
   const [products, setProducts] = useState([]);
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 const [isReviewsOpen, setIsReviewsOpen] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? 1 : 0));
-    }, 5000);
+    if (!images || images.length === 0) return;
 
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === images.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000); // Changes image every 5 seconds
+
+    // Cleanup interval on component unmount
     return () => clearInterval(interval);
-  }, []);
+  }, [images.length]);
 
   const brands = [
     { name: "HP", img: typeof brand1 !== 'undefined' ? brand1 : "", path: "/hp" },
