@@ -146,21 +146,21 @@ const WorkBanner = ({ setSelectedProduct }) => {
         {/* --- MAIN SLIDER FRAME WRAPPER --- */}
         <div className="relative group/mainSlider w-full">
           
-          {/* Left Floating Button - Hidden on mobile viewports to prevent component blocking */}
-          {products.length > 0 && (
-            <button 
-              onClick={scrollLeft}
-              className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 z-10 p-3 rounded-xl bg-white border border-[#E6E6E6] text-[#0F172A] hover:bg-[#0F172A] hover:text-white transition-all shadow-lg md:opacity-0 group-hover/mainSlider:opacity-100 items-center justify-center"
-            >
-              <ChevronLeft size={20} />
-            </button>
-          )}
+         {/* Left Floating Button */}
+{products.length > 0 && (
+  <button 
+    onClick={scrollLeft}
+    className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-10 md:-translate-x-14 z-10 p-3 rounded-xl bg-white border border-[#E6E6E6] text-[#0F172A] hover:bg-[#0F172A] hover:text-white transition-all shadow-lg md:opacity-0 group-hover/mainSlider:opacity-100 items-center justify-center"
+  >
+    <ChevronLeft size={20} />
+  </button>
+)}
 
           {/* Right Floating Button - Hidden on mobile viewports to prevent component blocking */}
           {products.length > 0 && (
             <button 
               onClick={scrollRight}
-              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 z-10 p-3 rounded-xl bg-white border border-[#E6E6E6] text-[#0F172A] hover:bg-[#0F172A] hover:text-white transition-all shadow-lg md:opacity-0 group-hover/mainSlider:opacity-100 items-center justify-center"
+              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-10 md:translate-x-14 z-10 p-3 rounded-xl bg-white border border-[#E6E6E6] text-[#0F172A] hover:bg-[#0F172A] hover:text-white transition-all shadow-lg md:opacity-0 group-hover/mainSlider:opacity-100 items-center justify-center"
             >
               <ChevronRight size={20} />
             </button>
