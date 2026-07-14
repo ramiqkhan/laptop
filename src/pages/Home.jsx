@@ -17,6 +17,7 @@ import FeaturedProducts from '../components/Featurecomp';
 import banner1 from '../assets/banner.jpeg';
 import banner2 from '../assets/banners.jpeg';
 import banner3 from '../assets/bannerss.jpeg';
+import banner4 from '../assets/bannersss.jpeg';
 
 import LaptopPages from '../components/laptopbanner';
 import GamingBanner from '../components/gamingbanner';
@@ -24,7 +25,7 @@ import WorkBanner from '../components/workbanner';
 import NewBanner from '../components/neworkbanner';
 import ProductReviews from '../components/ProductReviews';
 
-const images = [banner1, banner2, banner3];
+const images = [banner1, banner2, banner3, banner4];
 const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImgIndex, setActiveImgIndex] = useState(0);
