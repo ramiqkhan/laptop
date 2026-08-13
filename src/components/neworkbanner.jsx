@@ -1,10 +1,6 @@
-
-      
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Star, ShoppingCart, Loader2, Cpu, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom'; // Ensure this is imported
+import { Link, useNavigate } from 'react-router-dom'; // Added useNavigate
 
 const NewBanner = ({ setSelectedProduct }) => {
   const [products, setProducts] = useState([]);
@@ -12,6 +8,7 @@ const NewBanner = ({ setSelectedProduct }) => {
   const [error, setError] = useState(null);
   const [currentImageIndexes, setCurrentImageIndexes] = useState({});
   const sliderRef = useRef(null);
+  const navigate = useNavigate(); // Hook for programmatic navigation
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -41,7 +38,8 @@ const NewBanner = ({ setSelectedProduct }) => {
     fetchProducts();
   }, []);
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation(); // Prevents card-level click from triggering
     if (!product) return;
     try {
       const savedCart = localStorage.getItem('globalCart');
@@ -116,6 +114,13 @@ const NewBanner = ({ setSelectedProduct }) => {
     }
   };
 
+  // Handler for full card click to open view details
+  const handleCardClick = (product) => {
+    setSelectedProduct(product);
+    window.scrollTo(0, 0);
+    navigate(`/product/${product._id || product.id}`);
+  };
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-24 text-slate-400">
       <Loader2 className="animate-spin mb-4" size={40} />
@@ -146,7 +151,7 @@ const NewBanner = ({ setSelectedProduct }) => {
         {/* --- MAIN SLIDER FRAME WRAPPER --- */}
         <div className="relative group/mainSlider w-full">
           
- {/* Left Floating Button */}
+{/* Left Floating Button */}
 {products.length > 0 && (
   <button 
     onClick={scrollLeft}
@@ -189,8 +194,9 @@ const NewBanner = ({ setSelectedProduct }) => {
               return (
                 <div 
                   key={product._id} 
+                  onClick={() => handleCardClick(product)}
                   // FIXED: Added snap-center and responsive margins layout structure
-                  className="w-[260px] sm:w-[310px] shrink-0 snap-center bg-white p-5 rounded-2xl border border-[#E6E6E6] hover:shadow-2xl transition-all duration-500 flex flex-col group relative overflow-hidden mx-auto sm:mx-0"
+                  className="w-[260px] sm:w-[310px] shrink-0 snap-center bg-white p-5 rounded-2xl border border-[#E6E6E6] hover:shadow-2xl transition-all duration-500 flex flex-col group relative overflow-hidden mx-auto sm:mx-0 cursor-pointer"
                   style={{ boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)' }}
                 >
                   {/* Image Nested Carousel Framework */}
@@ -210,10 +216,7 @@ const NewBanner = ({ setSelectedProduct }) => {
                   </div>
 
                   {/* Info Meta Fields Redirection Content */}
-                  <div 
-                    className="cursor-pointer" 
-                    onClick={() => { setSelectedProduct(product); window.scrollTo(0,0); }}
-                  >
+                  <div>
                     <h3 className="text-base font-black text-[#0F172A] mb-1 line-clamp-1 group-hover:text-[#F4C430] transition-colors uppercase italic tracking-tighter">
                       {product.name}
                     </h3>
@@ -246,17 +249,18 @@ const NewBanner = ({ setSelectedProduct }) => {
                   {/* Operational Interactive Call to Actions Layout */}
                   <div className="mt-auto flex flex-col gap-2.5">
                     <button 
-                      onClick={() => handleAddToCart(product)}
+                      onClick={(e) => handleAddToCart(e, product)}
                       className="w-full py-3 bg-[#0F172A] text-white text-[11px] font-black rounded-xl hover:opacity-90 transition-all uppercase tracking-[0.15em] flex items-center justify-center gap-2"
                     >
                       <ShoppingCart size={16} /> Add to Cart
                     </button>
-                     <Link 
-                 to={`/product/${product._id || product.id}`}
-                 className="w-full py-3 bg-gradient-to-r from-[#F4C430] to-[#E2B020] text-[#0F172A] text-[11px] font-black rounded-xl border border-[#D4A017] text-center uppercase tracking-[0.15em] shadow-md hover:brightness-105 transition-all block"
-               >
-                 View Details
-               </Link>
+                    <Link 
+                       to={`/product/${product._id || product.id}`}
+                       onClick={(e) => e.stopPropagation()}
+                       className="w-full py-3 bg-gradient-to-r from-[#F4C430] to-[#E2B020] text-[#0F172A] text-[11px] font-black rounded-xl border border-[#D4A017] text-center uppercase tracking-[0.15em] shadow-md hover:brightness-105 transition-all block"
+                     >
+                       View Details
+                     </Link>
                   </div>
                 </div>
               );
