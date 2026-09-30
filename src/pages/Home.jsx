@@ -14,8 +14,8 @@ import brand6 from '../assets/logo/sonybg.png';
 import brand7 from '../assets/logo/samsung.png';
 import heroLaptop from '../assets/imgs/hero-1bg.png';
 import FeaturedProducts from '../components/Featurecomp';
-import banner1 from '../assets/banner.jpeg';
-import banner2 from '../assets/banners.jpeg';
+import banner1 from '../assets/bnr1.jpeg';
+import banner2 from '../assets/bnr2.jpeg';
 import banner3 from '../assets/bannerss.jpeg';
 import banner4 from '../assets/bn.jpeg';
 import banner5 from '../assets/bnn.jpeg';
@@ -26,7 +26,7 @@ import WorkBanner from '../components/workbanner';
 import NewBanner from '../components/neworkbanner';
 import ProductReviews from '../components/ProductReviews';
 
-const images = [banner1, banner2, banner3, banner4, banner5];
+const images = [   banner4, banner5,banner1,banner2];
 const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImgIndex, setActiveImgIndex] = useState(0);
@@ -149,7 +149,7 @@ const [isReviewsOpen, setIsReviewsOpen] = useState(false);
         /* --- CATALOG LAYOUT STORE FRONT (BANNER MOVED HERE) --- */
         <>
           {/* ✅ THE BANNER SLIDER IS NOW INSIDE THE MAIN STORE CATALOG ENVIRONMENT */}
-          <div className="relative w-full aspect-[16/9] mb-10 overflow-hidden">
+         <div className="relative w-full aspect-[16/9] mb-10 overflow-hidden">
             <Link to="/deals" className="block w-full h-full">
               {images?.length > 0 ? (
                 images.map((img, index) => (
