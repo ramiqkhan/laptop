@@ -38,6 +38,8 @@ const ProductReviews = ({ productItemId, onModel }) => {
   // Handle Form Submission
   const handleSubmitReview = async (e) => {
     e.preventDefault();
+    // Close the mobile keyboard so the page doesn't stay shifted/zoomed after submit
+    document.activeElement?.blur();
     if (!username.trim() || !comment.trim()) {
       alert("Please fill out all fields.");
       return;
@@ -76,9 +78,9 @@ const ProductReviews = ({ productItemId, onModel }) => {
   return (
     <div className="w-full pt-2">
       {/* HEADER SECTION - Stacked dynamically on extra small devices */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <h3 className="text-base sm:text-lg font-black text-[#0F172A] tracking-tight uppercase italic flex items-center gap-2">
+          <h3 className="text-sm sm:text-base md:text-lg font-black text-[#0F172A] tracking-tight uppercase italic flex items-center gap-2">
             <MessageSquare size={18} className="text-[#F4C430] shrink-0" /> 
             Community Feedback ({reviews.length})
           </h3>
@@ -96,10 +98,12 @@ const ProductReviews = ({ productItemId, onModel }) => {
 
       {/* COLLAPSIBLE ADD REVIEW FORM - Reduced internal padding on mobile layouts */}
       {showForm && (
-        <div className="mb-6 p-4 sm:p-6 bg-[#F8F9FA] rounded-2xl border border-gray-200 shadow-inner relative animate-in slide-in-from-top-4 duration-300">
-          <button 
+        <div className="mb-4 sm:mb-6 p-3 sm:p-6 bg-[#F8F9FA] rounded-xl sm:rounded-2xl border border-gray-200 shadow-inner relative animate-in slide-in-from-top-4 duration-300">
+          <button
+            type="button"
+            aria-label="Close review form"
             onClick={() => setShowForm(false)}
-            className="absolute top-4 right-4 text-gray-400 hover:text-black transition p-1"
+            className="absolute top-2 right-2 sm:top-4 sm:right-4 text-gray-400 hover:text-black transition p-2"
           >
             <X size={18} />
           </button>
@@ -108,7 +112,7 @@ const ProductReviews = ({ productItemId, onModel }) => {
             Share Your Experience
           </h4>
 
-          <form onSubmit={handleSubmitReview} className="space-y-4">
+          <form onSubmit={handleSubmitReview} className="space-y-3 sm:space-y-4">
             <div>
               <label className="block text-[9px] sm:text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">
                 Your Name
@@ -118,7 +122,7 @@ const ProductReviews = ({ productItemId, onModel }) => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Your Name"
-                className="w-full px-3 sm:px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F4C430] bg-white text-sm font-medium"
+                className="w-full px-3 sm:px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F4C430] bg-white text-base sm:text-sm font-medium"
                 required
               />
             </div>
@@ -132,7 +136,7 @@ const ProductReviews = ({ productItemId, onModel }) => {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Tell us what you think about this laptop..."
-                className="w-full px-3 sm:px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F4C430] bg-white text-sm font-medium"
+                className="w-full px-3 sm:px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#F4C430] bg-white text-base sm:text-sm font-medium resize-y min-h-[96px]"
                 required
               ></textarea>
             </div>
@@ -154,7 +158,7 @@ const ProductReviews = ({ productItemId, onModel }) => {
           Updating community notes...
         </p>
       ) : reviews.length === 0 ? (
-        <div className="text-center py-8 bg-white rounded-2xl border border-dashed border-gray-200 px-4">
+        <div className="text-center py-6 sm:py-8 bg-white rounded-xl sm:rounded-2xl border border-dashed border-gray-200 px-3 sm:px-4">
           <p className="text-xs sm:text-sm text-gray-400 font-medium">
             No reviews posted yet. Be the first to share your thoughts!
           </p>
@@ -164,11 +168,11 @@ const ProductReviews = ({ productItemId, onModel }) => {
           {reviews.map((rev) => (
             <div key={rev._id} className="p-3 sm:p-4 bg-white rounded-2xl border border-gray-100 shadow-sm flex gap-3 sm:gap-4 items-start">
               {/* Profile Icon Hidden on tiny displays to conserve readable reading columns */}
-              <div className="hidden xs:flex w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 flex-shrink-0 items-center justify-center text-slate-600">
+              <div className="hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 flex-shrink-0 items-center justify-center text-slate-600">
                 <User size={16} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-baseline gap-2">
+                <div className="flex flex-wrap justify-between items-baseline gap-x-2 gap-y-0.5">
                   <h5 className="font-bold text-slate-900 text-xs sm:text-sm truncate">
                     {rev.username}
                   </h5>

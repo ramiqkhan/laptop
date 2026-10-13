@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Heart, CheckCircle2, ShoppingCart, CreditCard, Star } from "lucide-react";
+import { Heart, CheckCircle2, ShoppingCart, CreditCard, Star, ArrowLeft } from "lucide-react";
 import {
   Cpu, Zap, Monitor, HardDrive, Box, ShieldCheck, ShieldAlert
 } from "lucide-react";
@@ -80,6 +80,13 @@ const ProductDetails = () => {
     navigate('/cart');
   };
 
+  // Go back to the previous page (e.g. the HP/Dell collection); fall back to Home
+  // when the product page was opened directly and there is no in-app history.
+  const handleBack = () => {
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate('/');
+  };
+
   // Fetch single product data
   useEffect(() => {
     const fetchProduct = async () => {
@@ -139,13 +146,19 @@ const ProductDetails = () => {
 
         {/* Breadcrumb */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6 border-b pb-3">
+          <button
+            onClick={handleBack}
+            className="inline-flex items-center gap-2 font-bold text-sm text-[#0F172A] hover:text-[#F4C430] transition-all uppercase tracking-tighter"
+          >
+            <ArrowLeft size={18} /> Back
+          </button>
           <nav className="text-[11px] sm:text-xs text-gray-400">
             <Link to="/" className="hover:text-slate-600 transition">Home</Link> / <span className="text-slate-600 font-medium">{product.name}</span>
           </nav>
         </div>
 
         {/* MAIN GRID BLOCK */}
-        <div className="bg-white rounded-3xl border border-[#E6E6E6] p-6 md:p-10 shadow-xl overflow-hidden relative">
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#E6E6E6] p-4 sm:p-6 md:p-10 shadow-xl overflow-hidden relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             
             {/* Left: Images Section */}
@@ -264,7 +277,7 @@ const ProductDetails = () => {
 
           {/* Description Overview Render */}
           {product?.description && (
-            <div className="mb-2 mt-10 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+            <div className="mb-2 mt-10 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-3 sm:p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
               <div 
                 className="flex items-center justify-between cursor-pointer group"
                 onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
@@ -289,7 +302,7 @@ const ProductDetails = () => {
           )}
 
           {/* Collapsible Reviews Accordion Section */}
-          <div className="mb-2 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
+          <div className="mb-2 mt-6 bg-gradient-to-br from-[#FAFBFC] to-white rounded-2xl p-3 sm:p-5 border border-slate-100 border-l-4 border-l-[#0F172A] shadow-inner">
             <div 
               className="flex items-center justify-between cursor-pointer group"
               onClick={() => setIsReviewsOpen(!isReviewsOpen)}
@@ -306,7 +319,7 @@ const ProductDetails = () => {
             </div>
 
             {isReviewsOpen && (
-              <div className="pl-3 animate-in fade-in duration-300">
+              <div className="sm:pl-3 animate-in fade-in duration-300">
                 <ProductReviews 
                   productItemId={product._id || id} 
                   onModel={product.onModel || "Product"} 
